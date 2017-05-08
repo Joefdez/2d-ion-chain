@@ -21,7 +21,7 @@ module initcond_generator
      !open(unit=15, file="eq_pos.dat", action='read')
      call ranseed()
      allocate(rg(1:2))
-     do ii = 0, n_particles-1, 1
+     do ii = 1, n_particles, 1
      !   read(15,*) qq0((ii*dim+1):(ii*dim+dim))
        do
         call RANDOM_NUMBER(rg)                                        ! generate three uniformly distributed random numbers
