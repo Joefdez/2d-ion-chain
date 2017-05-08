@@ -23,8 +23,8 @@ program twoDChain
   real(kind=8), dimension(:,:), allocatable :: YY
   real(kind=8), dimension(:,:), allocatable :: Cf1, Cf2, invD1, invD2
   real(kind=8), dimension(:), allocatable   :: xx0, yy0, zz0, eqX, eqY!, eq
-  real(kind=8), dimension(:), allocatable   :: kinEN_f, kinEN_ft
-  real(kind=8), dimension(:), allocatable   :: xx_f, xx_ft, yy_f, yy_ft
+  real(kind=8), dimension(:), allocatable   :: kinEN_f, kinEN_ft, kinEn_f_av
+  real(kind=8), dimension(:), allocatable   :: xx_f, xx_ft, yy_f, yy_ft, xx_f_av, yy_f_av
   ! Ion chain + Laser characteristics
 
   real(kind=8) :: omega_0    ! trageted transition frequency
@@ -150,14 +150,20 @@ program twoDChain
   kinEn_avt = 0.0d0
   allocate(xx_f(1:n_particles))
   xx_f = 0.0d0
+  allocate(xx_f_av(1:n_particles))
+  xx_f_av = 0.0d0
   allocate(yy_f(1:n_particles))
   yy_f = 0.0d0
+  allocate(yy_f_av(1:n_particles))
+  yy_f_av = 0.0d0
   allocate(xx_ft(1:n_particles))
   xx_ft = 0.0d0
   allocate(yy_ft(1:n_particles))
   yy_ft = 0.0d0
   allocate(kinEn_f(1:n_particles))
   kinEn_f = 0.0d0
+  allocate(kinEn_f_av(1:n_particles))
+  kinEn_f_av = 0.0d0
   allocate(kinEn_ft(1:n_particles))
   kinEN_ft = 0.0d0
   allocate(xPx_av(1:n_particles, n_ssteps))
@@ -245,9 +251,9 @@ program twoDChain
     yy_av   = yy_av + YY(n_particles+1:2*n_particles,1::save_freq)
     xPx_av  = xPx_av + YY(1:n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq)
     yPy_av  = yPy_av + YY(n_particles+1:2*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq)
-    kinEN_f = kinEn_f/(nsteps-st)
-    xx_f    = xx_f/(nsteps-st)
-    yy_f    = yy_f/(nsteps-st)
+    kinEN_f_av = kinEN_f_av + kinEn_f/(nsteps-st)
+    xx_f_av    = xx_f_av + xx_f/(nsteps-st)
+    yy_f_av    = yy_f_av + yy_f/(nsteps-st)
     if( ( mod(ii,5) .eq. 0) .and. (ii .lt. int(traj/procs) ) ) then
       call mpi_reduce(kinEn_av, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(xx_av, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -255,8 +261,8 @@ program twoDChain
       call mpi_reduce(xPx_av, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(yPy_av, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(kinEn_f, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(xx_f, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(yy_f, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(xx_f_av, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(yy_f_av, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(ii, p_traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
       if(rank .eq. 0) then
         open(unit=11, file="results/posX.dat")
@@ -292,9 +298,9 @@ program twoDChain
   call mpi_reduce(yy_av, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xPx_av, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yPy_av, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(kinEn_f, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xx_f, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yy_f, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(kinEn_f_av, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(xx_f_av, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(yy_f_av, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
 
   print*,"Everything written"
   if(rank .eq. 0) then
