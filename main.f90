@@ -137,37 +137,61 @@ program twoDChain
   call dimensionless_doppler_values(eta2, D2, mass1, long_freq, char_length, aeta2, aD2)
 
   allocate(xx_av(1:n_particles, n_ssteps))
+  xx_av = 0.0d0
   allocate(yy_av(1:n_particles, n_ssteps))
+  yy_av = 0.0d0
   allocate(xx_avt(1:n_particles, n_ssteps))
+  xx_avt = 0.0d0
   allocate(yy_avt(1:n_particles, n_ssteps))
+  yy_avt = 0.0d0
   allocate(kinEN_av(1:n_particles, n_ssteps))
+  kinEn_av = 0.0d0
   allocate(kinEN_avt(1:n_particles, n_ssteps))
+  kinEn_avt = 0.0d0
   allocate(xx_f(1:n_particles))
+  xx_f = 0.0d0
   allocate(yy_f(1:n_particles))
+  yy_f = 0.0d0
   allocate(xx_ft(1:n_particles))
+  xx_ft = 0.0d0
   allocate(yy_ft(1:n_particles))
+  yy_ft = 0.0d0
   allocate(kinEn_f(1:n_particles))
+  kinEn_f = 0.0d0
   allocate(kinEn_ft(1:n_particles))
+  kinEN_ft = 0.0d0
   allocate(xPx_av(1:n_particles, n_ssteps))
+  xPx_av = 0.0d0
   allocate(yPy_av(1:n_particles, n_ssteps))
+  yPy_av = 0.0d0
   allocate(YY(1:4*n_particles, nsteps))
-
+  YY = 0.0d0
   allocate(Cf1(2*n_particles,n_particles))
+  Cf1 = 0.0d0
   allocate(Cf2(2*n_particles,n_particles))
+  Cf2 = 0.0d0
   allocate(invD1(2*n_particles,n_particles))
+  invD1 = 0.0d0
   allocate(invD2(2*n_particles,n_particles))
+  invD2 = 0.0d0
 
   allocate(eqX(1:n_particles))
+  eqX = 0.0d0
   allocate(eqY(1:n_particles))
+  eqY = 0.0d0
   allocate(xx0(1:n_particles))
+  xx0 = 0.0d0
   allocate(yy0(1:n_particles))
+  yy0 = 0.0d0
 
   allocate(AA(1:4*n_particles))
+  AA = 0.0d0
   allocate(AAi(1:4*n_particles))
+  AAi = 0.0d0
   allocate(YYi(1:4*n_particles))
-
+  YYi = 0.0d0
   allocate(dStoc(1:4*n_particles))
-
+  dStoc = 0.0d0
   allocate(stoch_terms(1:4*n_particles))
   stoch_terms = 0.0d0
   stoch_terms((2*n_particles+1):(2*n_particles+3)) = sqrt(2.0d0 * aD1)
@@ -200,8 +224,8 @@ program twoDChain
       call stoch_vector(dst, n_particles,  stoch_terms, dStoc)
       call Cforce(YY(1:n_particles,jj), YY(n_particles+1:2*n_particles,jj), n_particles, invD1, Cf1)
       call ddt(YY(:,jj), AA, n_particles, eta1, eta2, alpha, Cf1)
-      YYi = YY(:,jj) + AA*dt + dSt
-      call Cforce(YYi(1:2*n_particles), YYi(n_particles+1:2*n_particles), n_particles, invD2, Cf2)
+      YYi = YY(:,jj) + AA*dt + dStoc
+      call Cforce(YYi(1:n_particles), YYi(n_particles+1:2*n_particles), n_particles, invD2, Cf2)
       call ddt(YYi, AAi, n_particles, eta1, eta2, alpha, Cf2)
       YY(:,jj+1) = YY(:,jj) + 0.5d0*(AA+AAi)*dt + dStoc
       if(jj .gt. st) then
