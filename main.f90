@@ -164,6 +164,10 @@ program twoDChain
   xPx_av = 0.0d0
   allocate(yPy_av(1:n_particles, n_ssteps))
   yPy_av = 0.0d0
+  allocate(xPx_avt(1:n_particles, n_ssteps))
+  xPx_av = 0.0d0
+  allocate(yPy_avt(1:n_particles, n_ssteps))
+  yPy_av = 0.0d0
   allocate(YY(1:4*n_particles, nsteps))
   YY = 0.0d0
   allocate(Cf1(2*n_particles,2*n_particles))
@@ -284,11 +288,8 @@ program twoDChain
   call mpi_barrier(mpi_comm_world, ierr)
   print*, "Out of loop"
   call mpi_reduce(kinEn_av, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  print*, "SENT KINEN TIME EVOLUTION"
   call mpi_reduce(xx_av, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  print*, "SENT X TIME EVOLUTION"
   call mpi_reduce(yy_av, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  print*, "SENT Y TIME EVOLUTION"
   call mpi_reduce(xPx_av, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yPy_av, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(kinEn_f, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
