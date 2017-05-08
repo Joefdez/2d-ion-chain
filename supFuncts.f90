@@ -72,9 +72,9 @@ module support_functions
     do nn=1, 3, 1
       call bm(rg1, rg2)
       dOm(2*n_particles+nn) = rg1*dst
-      dOm(3*n_particles-(nn+1)) = rg2*dst
+      dOm(3*n_particles-(nn-1)) = rg2*dst
       call bm(rg1, rg2)
-      dOm(3*n_particles+1) = rg1*dst
+      dOm(3*n_particles+nn) = rg1*dst
       dOm(4*n_particles-(nn-1)) = rg2*dst
     end do
 
