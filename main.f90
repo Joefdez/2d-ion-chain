@@ -195,7 +195,7 @@ program twoDChain
     call icpgen(n_particles, ic_radius, eqX, eqY, xx0(:), yy0(:))
     YY(1:n_particles,1) =  xx0(:)
     YY(n_particles+1:2*n_particles,1) = yy0(:)
-    print*, "Proc. " rank, " on trajectory", ii
+    print*, "Proc. ", rank, " on trajectory", ii
     do jj=1, nsteps-1,1
       call stoch_vector(dst, n_particles,  stoch_terms, dStoc)
       call Cforce(YY(1:n_particles,jj), YY(n_particles+1:2*n_particles,jj), n_particles, invD1, Cf1)
