@@ -166,9 +166,9 @@ program twoDChain
   yPy_av = 0.0d0
   allocate(YY(1:4*n_particles, nsteps))
   YY = 0.0d0
-  allocate(Cf1(2*n_particles,n_particles))
+  allocate(Cf1(2*n_particles,2*n_particles))
   Cf1 = 0.0d0
-  allocate(Cf2(2*n_particles,n_particles))
+  allocate(Cf2(2*n_particles,2*n_particles))
   Cf2 = 0.0d0
   allocate(invD1(2*n_particles,n_particles))
   invD1 = 0.0d0
