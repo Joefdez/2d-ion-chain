@@ -21,7 +21,7 @@ program twoDChain
   real(kind=8), dimension(:,:), allocatable :: Px_av, Py_av !, Pz_av
   real(kind=8), dimension(:),   allocatable :: YYi, AA, AAi
   real(kind=8), dimension(:,:), allocatable :: YY
-  real(kind=8), dimension(:,:), allocatable :: Cf1, Cf2, invD1, invD2
+  real(kind=8), dimension(:,:), allocatable :: Cfx1, Cfx2, Cfy1, Cfy2, invD1, invD2
   real(kind=8), dimension(:), allocatable   :: xx0, yy0, zz0, eqX, eqY!, eq
   real(kind=8), dimension(:), allocatable   :: kinEN_f, kinEN_ft
   real(kind=8), dimension(:), allocatable   :: xx_f, xx_ft, yy_f, yy_ft
@@ -166,13 +166,17 @@ program twoDChain
   yPy_av = 0.0d0
   allocate(YY(1:4*n_particles, nsteps))
   YY = 0.0d0
-  allocate(Cf1(2*n_particles,n_particles))
-  Cf1 = 0.0d0
-  allocate(Cf2(2*n_particles,n_particles))
-  Cf2 = 0.0d0
-  allocate(invD1(2*n_particles,n_particles))
+  allocate(Cfx1(n_particles,n_particles))
+  Cfx1 = 0.0d0
+  allocate(Cfx2(n_particles,n_particles))
+  Cfx2 = 0.0d0
+  allocate(Cfy1(n_particles,n_particles))
+  Cfy1 = 0.0d0
+  allocate(Cfy2(n_particles,n_particles))
+  Cfy2 = 0.0d0
+  allocate(invD1(n_particles,n_particles))
   invD1 = 0.0d0
-  allocate(invD2(2*n_particles,n_particles))
+  allocate(invD2(n_particles,n_particles))
   invD2 = 0.0d0
 
   allocate(eqX(1:n_particles))
@@ -212,7 +216,7 @@ program twoDChain
 !-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
+  call sleep(rank)
   do ii=1, local_traj, 1
     print*,"Process", rank, "on stochastic trajectory ", ii
     YY = 0.0d0
@@ -222,11 +226,12 @@ program twoDChain
     print*, "Proc. ", rank, " on trajectory", ii
     do jj=1, nsteps-1,1
       call stoch_vector(dst, n_particles,  stoch_terms, dStoc)
-      call Cforce(YY(1:n_particles,jj), YY(n_particles+1:2*n_particles,jj), n_particles, invD1, Cf1)
-      call ddt(YY(:,jj), AA, n_particles, eta1, eta2, alpha, Cf1)
+      call Cforce(YY(1:n_particles,jj), YY(n_particles+1:2*n_particles,jj), n_particles, invD1, Cfx1, Cfy1)
+      call sleep(1)
+      call ddt(YY(:,jj), AA, n_particles, eta1, eta2, alpha, Cfx1, Cfy1)
       YYi = YY(:,jj) + AA*dt + dStoc
-      call Cforce(YYi(1:n_particles), YYi(n_particles+1:2*n_particles), n_particles, invD2, Cf2)
-      call ddt(YYi, AAi, n_particles, eta1, eta2, alpha, Cf2)
+      call Cforce(YYi(1:n_particles), YYi(n_particles+1:2*n_particles), n_particles, invD2, Cfx2 ,Cfy2)
+      call ddt(YYi, AAi, n_particles, eta1, eta2, alpha, Cfx2, Cfy2)
       YY(:,jj+1) = YY(:,jj) + 0.5d0*(AA+AAi)*dt + dStoc
       if(jj .gt. st) then
         xx_f = xx_f + YY(1:n_particles,jj)

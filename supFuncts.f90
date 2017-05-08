@@ -5,16 +5,18 @@ module support_functions
 
   contains
 
-  subroutine Cforce(posx, posy, n_particles, invD, Cf)
+  subroutine Cforce(posx, posy, n_particles, invD, Cfx, Cfy)
     implicit none
 
     real(kind=8), dimension(:), intent(in)      :: posx, posy
     integer, intent(in)                         :: n_particles
-    real(kind=8), dimension(:,:), intent(inout) :: invD, Cf
+    real(kind=8), dimension(:,:), intent(inout) :: invD, Cfx, Cfy
     integer                                     :: ii, jj
     real(kind=8)                                :: dist
 
-    Cf = 0.0d0
+    Cfx = 0.0d0
+    Cfy = 0.0d0
+    invD = 0.0d0
     do ii=1, n_particles, 1
       dist = 0.0d0
       do jj=ii+1, n_particles, 1
@@ -23,30 +25,31 @@ module support_functions
         invD(ii,jj) = 1.0d0/dist
         invD(jj,ii) = 1.0d0/dist
         dist = (dist*dist*dist)
-        Cf(ii,jj) = (posx(ii)-posx(jj))/dist
-        Cf(jj,ii) = -1.0d0 * (posx(ii)-posx(jj))/dist
-        Cf(2*ii, 2*jj) = (posy(ii)-posy(jj))/dist
-        Cf(2*jj, 2*ii) = -1.0d0 * (posy(ii)-posy(jj))/dist
+        Cfx(ii,jj) = (posx(ii)-posx(jj))/dist
+        Cfx(jj,ii) = -1.0d0 * (posx(ii)-posx(jj))/dist
+        Cfy(ii, jj) = (posy(ii)-posy(jj))/dist
+        Cfy(jj, ii) = -1.0d0 * (posy(ii)-posy(jj))/dist
       end do
     end do
 
   end subroutine Cforce
 
-  subroutine ddt(YY, AA, n_particles, eta1, eta2, alpha, Cforce)
+  subroutine ddt(YY, AA, n_particles, eta1, eta2, alpha, Cforcex, Cforcey)
     implicit none
     real(kind=8), dimension(:), intent(in)    :: YY
-    real(kind=8), dimension(:,:), intent(in)  :: Cforce
+    real(kind=8), dimension(:,:), intent(in)  :: Cforcex, Cforcey
     real(kind=8), intent(in)                  :: eta1, eta2, alpha
     integer, intent(in)                       :: n_particles
     real(kind=8), dimension(:), intent(inout) :: AA
     integer                                   :: ii
 
+    AA = 0.0d0
     AA(1:2*n_particles)  = YY(3*n_particles+1:)
     do ii=1, n_particles, 1
-      AA(ii+2*n_particles) = -0.5d0*YY(ii) + sum(Cforce(ii,1:n_particles),1)
+      AA(ii+2*n_particles) = -0.5d0*YY(ii) + sum(Cforcex(ii,1:n_particles),1)
     end do
     do ii=1, n_particles, 1
-      AA(ii+3*n_particles) = -0.5d0*alpha*alpha*YY(n_particles+ii) + sum(Cforce(2*ii,1:n_particles),1)
+      AA(ii+3*n_particles) = -0.5d0*alpha*alpha*YY(n_particles+ii) + sum(Cforcey(ii,1:n_particles),1)
     end do
 
     do ii=1, 3, 1
