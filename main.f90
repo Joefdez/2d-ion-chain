@@ -96,7 +96,7 @@ program twoDChain
   n_ssteps = int(nsteps/save_freq)
   st = int(0.8*nsteps)
   dst = sqrt(dt)
-  n_elems = 2*n_particles*n_ssteps
+  n_elems = n_particles*n_ssteps
 
   if(rank .eq. 0) then
     print*, "Reading laser parameters."
@@ -186,14 +186,16 @@ program twoDChain
 !-------------------------------------------------------------------------------------------------------------------------------------------------------
 !                                                  Resolution block
 !-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
   do ii=1, local_traj, 1
     print*,"Process", rank, "on stochastic trajectory ", ii
-
-
     YY = 0.0d0
     call icpgen(n_particles, ic_radius, eqX, eqY, xx0(:), yy0(:))
     YY(1:n_particles,1) =  xx0(:)
     YY(n_particles+1:2*n_particles,1) = yy0(:)
+    print*, rank, "time evolving", ii
     do jj=1, nsteps-1,1
       call stoch_vector(dst, n_particles,  stoch_terms, dStoc)
       call Cforce(YY(1:n_particles,jj), YY(n_particles+1:2*n_particles,jj), n_particles, invD1, Cf1)
@@ -209,6 +211,7 @@ program twoDChain
                   0.5d0*YY((3*n_particles+1):4*n_particles,jj)*YY((3*n_particles+1):(4*n_particles),jj)
       end if
     end do
+    print*, rank, " finished time evolving", ii
     kinEn_av = kinEn_av + 0.5d0*YY((2*n_particles+1):3*n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq) +&
               0.5d0*YY((3*n_particles+1):4*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq)
     xx_av   = xx_av + YY(1:n_particles,1::save_freq)
@@ -218,15 +221,17 @@ program twoDChain
     kinEN_f = kinEn_f/(nsteps-st)
     xx_f    = xx_f/(nsteps-st)
     yy_f    = yy_f/(nsteps-st)
-    if( ( mod(kk,5) .eq. 0) .and. (kk .lt. int(traj/procs) ) ) then
+    print*, rank, ii, mod(kk,5)
+    if( ( mod(kk,5) .eq. 0) .and. (ii .lt. int(traj/procs) ) ) then
+      print*, rank, "reducing"
       call mpi_reduce(kinEn_av, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(xx_av, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(yy_av, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(xPx_av, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(yPy_av, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(kinEn_f, kinEn_ft, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(xx_f, xx_ft, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(yy_f, yy_ft, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(kinEn_f, kinEn_ft, n_particles, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(xx_f, xx_ft, n_particles, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(yy_f, yy_ft, n_particles, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(ii, p_traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
       if(rank .eq. 0) then
         open(unit=11, file="results/posX.dat")
@@ -255,6 +260,8 @@ program twoDChain
     end if
   end do
 
+  call mpi_barrier(mpi_comm_world, ierr)
+  print*, "Out of loop"
   call mpi_reduce(kinEn_av, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   print*, "SENT KINEN TIME EVOLUTION"
   call mpi_reduce(xx_av, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -267,7 +274,6 @@ program twoDChain
   call mpi_reduce(xx_f, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy_f, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
 
-  call mpi_barrier(mpi_comm_world, ierr)
   print*,"Everything written"
   if(rank .eq. 0) then
     print*, "Writing final results."
