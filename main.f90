@@ -250,9 +250,9 @@ program twoDChain
       call mpi_reduce(yy_av, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(xPx_av, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(yPy_av, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(kinEn_f, kinEn_ft, n_particles, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(xx_f, xx_ft, n_particles, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(yy_f, yy_ft, n_particles, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(kinEn_f, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(xx_f, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(yy_f, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(ii, p_traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
       if(rank .eq. 0) then
         open(unit=11, file="results/posX.dat")
