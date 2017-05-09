@@ -231,10 +231,11 @@ program twoDChain
     do jj=1, nsteps-1,1
       call stoch_vector(dst, n_particles,  stoch_terms, dStoc)
       call Cforce(YY(1:n_particles,jj), YY(n_particles+1:2*n_particles,jj), n_particles, invD1, Cf1)
-      call ddt(YY(:,jj), AA, n_particles, eta1, eta2, alpha, Cf1)
+      call ddt(YY(:,jj), AA, n_particles, aeta1, aeta2, alpha, Cf1)
       YYi = YY(:,jj) + AA*dt + dStoc
       call Cforce(YYi(1:n_particles), YYi(n_particles+1:2*n_particles), n_particles, invD2, Cf2)
-      call ddt(YYi, AAi, n_particles, eta1, eta2, alpha, Cf2)
+      call ddt(YYi, AAi, n_particles, aeta1, aeta2, alpha, Cf2)
+
       YY(:,jj+1) = YY(:,jj) + 0.5d0*(AA+AAi)*dt + dStoc
       if(jj .gt. st) then
         xx_f = xx_f + YY(1:n_particles,jj)
