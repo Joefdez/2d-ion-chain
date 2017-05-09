@@ -235,7 +235,6 @@ program twoDChain
       YYi = YY(:,jj) + AA*dt + dStoc
       call Cforce(YYi(1:n_particles), YYi(n_particles+1:2*n_particles), n_particles, invD2, Cf2)
       call ddt(YYi, AAi, n_particles, aeta1, aeta2, alpha, Cf2)
-
       YY(:,jj+1) = YY(:,jj) + 0.5d0*(AA+AAi)*dt + dStoc
       if(jj .gt. st) then
         xx_f = xx_f + YY(1:n_particles,jj)

@@ -41,7 +41,7 @@ module support_functions
     real(kind=8), dimension(:), intent(inout) :: AA
     integer                                   :: ii
 
-    AA(1:2*n_particles)  = YY(3*n_particles+1:)
+    AA(1:2*n_particles)  = YY(2*n_particles+1:)
     do ii=1, n_particles, 1
       AA(ii+2*n_particles) = -0.5d0*YY(ii) + sum(Cforce(ii,1:n_particles),1)
     end do
