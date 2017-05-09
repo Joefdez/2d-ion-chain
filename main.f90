@@ -228,6 +228,7 @@ program twoDChain
     YY(1:n_particles,1) =  xx0(:)
     YY(n_particles+1:2*n_particles,1) = yy0(:)
     print*, "Proc. ", rank, " on trajectory", ii
+    kk = 0
     do jj=1, nsteps-1,1
       call stoch_vector(dst, n_particles,  stoch_terms, dStoc)
       call Cforce(YY(1:n_particles,jj), YY(n_particles+1:2*n_particles,jj), n_particles, invD1, Cf1)
@@ -237,30 +238,31 @@ program twoDChain
       call ddt(YYi, AAi, n_particles, aeta1, aeta2, alpha, Cf2)
       YY(:,jj+1) = YY(:,jj) + 0.5d0*(AA+AAi)*dt + dStoc
       if(jj .gt. st) then
-        xx_f = xx_f + YY(1:n_particles,jj)
-        yy_f = yy_f + YY(n_particles+1:2*n_particles,jj)
-        kinEN_f = kinEn_f +  0.5d0*YY((2*n_particles+1):3*n_particles,jj)*YY((2*n_particles+1):3*n_particles,jj) +&
-                  0.5d0*YY((3*n_particles+1):4*n_particles,jj)*YY((3*n_particles+1):(4*n_particles),jj)
+        kk = kk + 1
+        xx_f = (xx_f*(kk-1) + YY(1:n_particles,jj))/kk
+        yy_f = (yy_f*(kk-1) + YY(n_particles+1:2*n_particles,jj))/kk
+        kinEN_f = (kinEn_f*(kk-1) +  0.5d0*YY((2*n_particles+1):3*n_particles,jj)*YY((2*n_particles+1):3*n_particles,jj) +&
+                  0.5d0*YY((3*n_particles+1):4*n_particles,jj)*YY((3*n_particles+1):(4*n_particles),jj))/kk
       end if
     end do
-    kinEn_av = kinEn_av + 0.5d0*YY((2*n_particles+1):3*n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq) +&
-              0.5d0*YY((3*n_particles+1):4*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq)
-    xx_av   = xx_av + YY(1:n_particles,1::save_freq)
-    yy_av   = yy_av + YY(n_particles+1:2*n_particles,1::save_freq)
-    xPx_av  = xPx_av + YY(1:n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq)
-    yPy_av  = yPy_av + YY(n_particles+1:2*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq)
-    kinEN_f_av = kinEN_f_av + kinEn_f/(nsteps-st)
-    xx_f_av    = xx_f_av + xx_f/(nsteps-st)
-    yy_f_av    = yy_f_av + yy_f/(nsteps-st)
+    kinEn_av = (kinEn_av*(ii-1) + 0.5d0*YY((2*n_particles+1):3*n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq) +&
+              0.5d0*YY((3*n_particles+1):4*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq))/ii
+    xx_av   = (xx_av*(ii-1) + Y(1:n_particles,1::save_freq))/ii
+    yy_av   = (yy_av*(ii-1) + YY(n_particles+1:2*n_particles,1::save_freq))/ii
+    xPx_av  = (xPx_av*(ii-1) + YY(1:n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq))/ii
+    yPy_av  = (yPy_av*(ii-1) + YY(n_particles+1:2*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq))/ii
+    kinEN_f_av = (kinEN_f_av*(ii-1) + kinEn_f)/ii
+    xx_f_av    = (xx_f_av*(ii-1) + xx_f/(nsteps-st))/ii
+    yy_f_av    = (yy_f_av*(ii-1) + yy_f/(nsteps-st))/ii
     if( ( mod(ii,5) .eq. 0) .and. (ii .lt. int(traj/procs) ) ) then
-      call mpi_reduce(kinEn_av, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(xx_av, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(yy_av, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(xPx_av, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(yPy_av, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(kinEn_f, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(xx_f_av, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(yy_f_av, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(kinEn_av*ii, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(xx_av*ii, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(yy_av*ii, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(xPx_av*ii, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(yPy_av*ii, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(kinEn_f*ii, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(xx_f_av*ii, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(yy_f_av*ii, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(ii, p_traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
       if(rank .eq. 0) then
         open(unit=11, file="results/posX.dat")
@@ -291,15 +293,15 @@ program twoDChain
 
   call mpi_barrier(mpi_comm_world, ierr)
   print*, "Out of loop"
-  call mpi_reduce(kinEn_av, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xx_av, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yy_av, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xPx_av, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yPy_av, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(kinEn_f_av, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xx_f_av, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yy_f_av, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-
+  call mpi_reduce(kinEn_av*local_traj, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(xx_av*local_traj, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(yy_av*local_traj, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(xPx_av*local_traj, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(yPy_av*local_traj, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(kinEn_f_av*local_traj, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(xx_f_av*local_traj, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(yy_f_av*local_traj, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
   print*,"Everything written"
   if(rank .eq. 0) then
     print*, "Writing final results."
