@@ -166,14 +166,14 @@ program twoDChain
   kinEn_f_av = 0.0d0
   allocate(kinEn_ft(1:n_particles))
   kinEN_ft = 0.0d0
-  allocate(xPx_av(1:n_particles, n_ssteps))
-  xPx_av = 0.0d0
-  allocate(yPy_av(1:n_particles, n_ssteps))
-  yPy_av = 0.0d0
-  allocate(xPx_avt(1:n_particles, n_ssteps))
-  xPx_av = 0.0d0
-  allocate(yPy_avt(1:n_particles, n_ssteps))
-  yPy_av = 0.0d0
+  !allocate(xPx_av(1:n_particles, n_ssteps))
+  !xPx_av = 0.0d0
+  !allocate(yPy_av(1:n_particles, n_ssteps))
+  !yPy_av = 0.0d0
+  !allocate(xPx_avt(1:n_particles, n_ssteps))
+  !xPx_av = 0.0d0
+  !allocate(yPy_avt(1:n_particles, n_ssteps))
+  !yPy_av = 0.0d0
   allocate(YY(1:4*n_particles, nsteps))
   YY = 0.0d0
   allocate(Cf1(2*n_particles,2*n_particles))
@@ -241,16 +241,18 @@ program twoDChain
         kk = kk + 1
         xx_f = (xx_f*(kk-1) + YY(1:n_particles,jj))/kk
         yy_f = (yy_f*(kk-1) + YY(n_particles+1:2*n_particles,jj))/kk
-        kinEN_f = (kinEn_f*(kk-1) +  0.5d0*YY((2*n_particles+1):3*n_particles,jj)*YY((2*n_particles+1):3*n_particles,jj) +&
+        kinEN_f = (kinEn_f*(kk-1) +&
+                  0.5d0*YY((2*n_particles+1):3*n_particles,jj)*YY((2*n_particles+1):3*n_particles,jj) +&
                   0.5d0*YY((3*n_particles+1):4*n_particles,jj)*YY((3*n_particles+1):(4*n_particles),jj))/kk
       end if
     end do
-    kinEn_av = (kinEn_av*(ii-1) + 0.5d0*YY((2*n_particles+1):3*n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq) +&
+    kinEn_av = (kinEn_av*(ii-1) +&
+              0.5d0*YY((2*n_particles+1):3*n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq) +&
               0.5d0*YY((3*n_particles+1):4*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq))/ii
-    xx_av   = (xx_av*(ii-1) + Y(1:n_particles,1::save_freq))/ii
+    xx_av   = (xx_av*(ii-1) + YY(1:n_particles,1::save_freq))/ii
     yy_av   = (yy_av*(ii-1) + YY(n_particles+1:2*n_particles,1::save_freq))/ii
-    xPx_av  = (xPx_av*(ii-1) + YY(1:n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq))/ii
-    yPy_av  = (yPy_av*(ii-1) + YY(n_particles+1:2*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq))/ii
+  !  xPx_av  = (xPx_av*(ii-1) + YY(1:n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq))/ii
+  !  yPy_av  = (yPy_av*(ii-1) + YY(n_particles+1:2*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq))/ii
     kinEN_f_av = (kinEN_f_av*(ii-1) + kinEn_f)/ii
     xx_f_av    = (xx_f_av*(ii-1) + xx_f/(nsteps-st))/ii
     yy_f_av    = (yy_f_av*(ii-1) + yy_f/(nsteps-st))/ii
@@ -258,8 +260,8 @@ program twoDChain
       call mpi_reduce(kinEn_av*ii, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(xx_av*ii, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(yy_av*ii, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(xPx_av*ii, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(yPy_av*ii, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !    call mpi_reduce(xPx_av*ii, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !    call mpi_reduce(yPy_av*ii, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(kinEn_f*ii, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(xx_f_av*ii, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(yy_f_av*ii, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -275,8 +277,8 @@ program twoDChain
           write(11,*) xx_avt(jj,:)/p_traj
           write(12,*) yy_avt(jj,:)/p_traj
           write(13,*) kinEn_avt(jj,:)/p_traj
-          write(14,*) xPx_avt(jj,:)/p_traj
-          write(15,*) yPy_avt(jj,:)/p_traj
+  !        write(14,*) xPx_avt(jj,:)/p_traj
+  !        write(15,*) yPy_avt(jj,:)/p_traj
         end do
         write(16,*) xx_ft/p_traj
         write(16,*) yy_ft/p_traj
@@ -284,8 +286,8 @@ program twoDChain
         close(unit=11)
         close(unit=12)
         close(unit=13)
-        close(unit=14)
-        close(unit=15)
+  !      close(unit=14)
+  !      close(unit=15)
         close(unit=16)
       end if
     end if
@@ -296,8 +298,8 @@ program twoDChain
   call mpi_reduce(kinEn_av*local_traj, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx_av*local_traj, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy_av*local_traj, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xPx_av*local_traj, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yPy_av*local_traj, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(xPx_av*local_traj, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(yPy_av*local_traj, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(kinEn_f_av*local_traj, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx_f_av*local_traj, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy_f_av*local_traj, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -308,15 +310,15 @@ program twoDChain
     open(unit=11, file="results/posX.dat")
     open(unit=12, file="results/posy.dat")
     open(unit=13, file="results/kinEN.dat")
-    open(unit=14, file="results/xPx.dat")
-    open(unit=15, file="results/yPy.dat")
+  !  open(unit=14, file="results/xPx.dat")
+  !  open(unit=15, file="results/yPy.dat")
     open(unit=16, file="results/avOvertime.dat")
     do jj=1, n_particles, 1
       write(11,*) xx_avt(jj,:)/traj
       write(12,*) yy_avt(jj,:)/traj
       write(13,*) kinEn_avt(jj,:)/traj
-      write(14,*) xPx_avt(jj,:)/traj
-      write(15,*) yPy_avt(jj,:)/traj
+  !    write(14,*) xPx_avt(jj,:)/traj
+  !    write(15,*) yPy_avt(jj,:)/traj
     end do
     write(16,*) xx_ft/traj
     write(16,*) yy_ft/traj
@@ -324,8 +326,8 @@ program twoDChain
     close(unit=11)
     close(unit=12)
     close(unit=13)
-    close(unit=14)
-    close(unit=15)
+  !  close(unit=14)
+  !  close(unit=15)
     close(unit=16)
   end if
 
