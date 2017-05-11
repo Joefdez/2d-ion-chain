@@ -176,15 +176,15 @@ program twoDChain
   !yPy_av = 0.0d0
   allocate(YY(1:4*n_particles))
   YY=0.d0
-  allocate(YYs(1:4*n_particles, n_ssteps))
+  allocate(YYs(1:4*n_particles, 1:n_ssteps))
   YYs = 0.0d0
-  allocate(Cf1(2*n_particles,2*n_particles))
+  allocate(Cf1(1:2*n_particles,1:2*n_particles))
   Cf1 = 0.0d0
-  allocate(Cf2(2*n_particles,2*n_particles))
+  allocate(Cf2(1:2*n_particles,1:2*n_particles))
   Cf2 = 0.0d0
-  allocate(invD1(2*n_particles,n_particles))
+  allocate(invD1(1:2*n_particles,1:n_particles))
   invD1 = 0.0d0
-  allocate(invD2(2*n_particles,n_particles))
+  allocate(invD2(1:2*n_particles,1:n_particles))
   invD2 = 0.0d0
 
   allocate(eqX(1:n_particles))
@@ -231,6 +231,7 @@ program twoDChain
     YY(n_particles+1:2*n_particles) = yy0(:)
     print*, "Proc. ", rank, " on trajectory", ii
     kk = 0
+    ll = 2
     do jj=1, nsteps-1,1
       call stoch_vector(dst, n_particles,  stoch_terms, dStoc)
       call Cforce(YY(1:n_particles), YY(n_particles+1:2*n_particles), n_particles, invD1, Cf1)
@@ -248,10 +249,14 @@ program twoDChain
                   0.5d0*YY((3*n_particles+1):4*n_particles)*YY((3*n_particles+1):(4*n_particles)))/kk
       end if
       if(mod(jj,save_freq) .eq. 0) then
-        ll = ll + 1
         YYs(:,ll) = YY
+        ll = ll + 1
       end if
     end do
+
+    YYs(:,int(nsteps/save_freq)) = YY
+
+    print*,"time over"
     kinEn_av = (kinEn_av*(ii-1) +&
               0.5d0*YYs((2*n_particles+1):3*n_particles,:)*YYs((2*n_particles+1):3*n_particles,:) +&
               0.5d0*YYs((3*n_particles+1):4*n_particles,:)*YYs((3*n_particles+1):4*n_particles,:))/ii
@@ -273,6 +278,7 @@ program twoDChain
       call mpi_reduce(yy_f_av*ii, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(ii, p_traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
       if(rank .eq. 0) then
+        print*, "so we open"
         open(unit=11, file="results/posX.dat")
         open(unit=12, file="results/posy.dat")
         open(unit=13, file="results/kinEN.dat")
@@ -297,6 +303,7 @@ program twoDChain
         close(unit=16)
       end if
     end if
+    print*, rank, ii
   end do
 
   call mpi_barrier(mpi_comm_world, ierr)
