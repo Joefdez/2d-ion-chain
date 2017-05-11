@@ -19,8 +19,8 @@ program twoDChain
   real(kind=8), dimension(:,:), allocatable :: xPx_av, xPx_avt, yPy_av, yPy_avt
   real(kind=8), dimension(:,:), allocatable :: Px, Py !, Pz
   real(kind=8), dimension(:,:), allocatable :: Px_av, Py_av !, Pz_av
-  real(kind=8), dimension(:),   allocatable :: YYi, AA, AAi
-  real(kind=8), dimension(:,:), allocatable :: YY
+  real(kind=8), dimension(:),   allocatable :: YY, YYi, AA, AAi
+  real(kind=8), dimension(:,:), allocatable :: YYs
   real(kind=8), dimension(:,:), allocatable :: Cf1, Cf2, invD1, invD2
   real(kind=8), dimension(:), allocatable   :: xx0, yy0, zz0, eqX, eqY!, eq
   real(kind=8), dimension(:), allocatable   :: kinEN_f, kinEN_ft, kinEn_f_av
@@ -48,7 +48,7 @@ program twoDChain
   integer :: n_particles, traj, local_traj, nsteps, rem, save_freq, n_ssteps, p_traj
   integer ::n_elems
   real(kind=8), dimension(:), allocatable   :: YYold, stoch_terms, dStoc
-  integer                                   :: ii,jj, kk
+  integer                                   :: ii,jj, kk, ll
   real(kind=8)                              :: ic_radius
 
   ! mpi variables
@@ -136,17 +136,17 @@ program twoDChain
   call dimensionless_doppler_values(eta1, D1, mass1, long_freq, char_length, aeta1, aD1)
   call dimensionless_doppler_values(eta2, D2, mass1, long_freq, char_length, aeta2, aD2)
 
-  allocate(xx_av(1:n_particles, n_ssteps))
+  allocate(xx_av(1:n_particles, 1:n_ssteps))
   xx_av = 0.0d0
-  allocate(yy_av(1:n_particles, n_ssteps))
+  allocate(yy_av(1:n_particles, 1:n_ssteps))
   yy_av = 0.0d0
-  allocate(xx_avt(1:n_particles, n_ssteps))
+  allocate(xx_avt(1:n_particles, 1:n_ssteps))
   xx_avt = 0.0d0
-  allocate(yy_avt(1:n_particles, n_ssteps))
+  allocate(yy_avt(1:n_particles, 1:n_ssteps))
   yy_avt = 0.0d0
-  allocate(kinEN_av(1:n_particles, n_ssteps))
+  allocate(kinEN_av(1:n_particles, 1:n_ssteps))
   kinEn_av = 0.0d0
-  allocate(kinEN_avt(1:n_particles, n_ssteps))
+  allocate(kinEN_avt(1:n_particles, 1:n_ssteps))
   kinEn_avt = 0.0d0
   allocate(xx_f(1:n_particles))
   xx_f = 0.0d0
@@ -174,8 +174,10 @@ program twoDChain
   !xPx_av = 0.0d0
   !allocate(yPy_avt(1:n_particles, n_ssteps))
   !yPy_av = 0.0d0
-  allocate(YY(1:4*n_particles, nsteps))
-  YY = 0.0d0
+  allocate(YY(1:4*n_particles))
+  YY=0.d0
+  allocate(YYs(1:4*n_particles, n_ssteps))
+  YYs = 0.0d0
   allocate(Cf1(2*n_particles,2*n_particles))
   Cf1 = 0.0d0
   allocate(Cf2(2*n_particles,2*n_particles))
@@ -225,34 +227,38 @@ program twoDChain
     print*,"Process", rank, "on stochastic trajectory ", ii
     YY = 0.0d0
     call icpgen(n_particles, ic_radius, eqX, eqY, xx0(:), yy0(:))
-    YY(1:n_particles,1) =  xx0(:)
-    YY(n_particles+1:2*n_particles,1) = yy0(:)
+    YY(1:n_particles) =  xx0(:)
+    YY(n_particles+1:2*n_particles) = yy0(:)
     print*, "Proc. ", rank, " on trajectory", ii
     kk = 0
     do jj=1, nsteps-1,1
       call stoch_vector(dst, n_particles,  stoch_terms, dStoc)
-      call Cforce(YY(1:n_particles,jj), YY(n_particles+1:2*n_particles,jj), n_particles, invD1, Cf1)
-      call ddt(YY(:,jj), AA, n_particles, aeta1, aeta2, alpha, Cf1)
-      YYi = YY(:,jj) + AA*dt + dStoc
+      call Cforce(YY(1:n_particles), YY(n_particles+1:2*n_particles), n_particles, invD1, Cf1)
+      call ddt(YY(:), AA, n_particles, aeta1, aeta2, alpha, Cf1)
+      YYi = YY(:) + AA*dt + dStoc
       call Cforce(YYi(1:n_particles), YYi(n_particles+1:2*n_particles), n_particles, invD2, Cf2)
       call ddt(YYi, AAi, n_particles, aeta1, aeta2, alpha, Cf2)
-      YY(:,jj+1) = YY(:,jj) + 0.5d0*(AA+AAi)*dt + dStoc
+      YY(:) = YY(:) + 0.5d0*(AA+AAi)*dt + dStoc
       if(jj .gt. st) then
         kk = kk + 1
-        xx_f = (xx_f*(kk-1) + YY(1:n_particles,jj))/kk
-        yy_f = (yy_f*(kk-1) + YY(n_particles+1:2*n_particles,jj))/kk
+        xx_f = (xx_f*(kk-1) + YY(1:n_particles))/kk
+        yy_f = (yy_f*(kk-1) + YY(n_particles+1:2*n_particles))/kk
         kinEN_f = (kinEn_f*(kk-1) +&
-                  0.5d0*YY((2*n_particles+1):3*n_particles,jj)*YY((2*n_particles+1):3*n_particles,jj) +&
-                  0.5d0*YY((3*n_particles+1):4*n_particles,jj)*YY((3*n_particles+1):(4*n_particles),jj))/kk
+                  0.5d0*YY((2*n_particles+1):3*n_particles)*YY((2*n_particles+1):3*n_particles) +&
+                  0.5d0*YY((3*n_particles+1):4*n_particles)*YY((3*n_particles+1):(4*n_particles)))/kk
+      end if
+      if(mod(jj,save_freq) .eq. 0) then
+        ll = ll + 1
+        YYs(:,ll) = YY
       end if
     end do
     kinEn_av = (kinEn_av*(ii-1) +&
-              0.5d0*YY((2*n_particles+1):3*n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq) +&
-              0.5d0*YY((3*n_particles+1):4*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq))/ii
-    xx_av   = (xx_av*(ii-1) + YY(1:n_particles,1::save_freq))/ii
-    yy_av   = (yy_av*(ii-1) + YY(n_particles+1:2*n_particles,1::save_freq))/ii
-  !  xPx_av  = (xPx_av*(ii-1) + YY(1:n_particles,1::save_freq)*YY((2*n_particles+1):3*n_particles,1::save_freq))/ii
-  !  yPy_av  = (yPy_av*(ii-1) + YY(n_particles+1:2*n_particles,1::save_freq)*YY((3*n_particles+1):4*n_particles,1::save_freq))/ii
+              0.5d0*YYs((2*n_particles+1):3*n_particles,:)*YYs((2*n_particles+1):3*n_particles,:) +&
+              0.5d0*YYs((3*n_particles+1):4*n_particles,:)*YYs((3*n_particles+1):4*n_particles,:))/ii
+    xx_av   = (xx_av*(ii-1) + YYs(1:n_particles,:))/ii
+    yy_av   = (yy_av*(ii-1) + YYs(n_particles+1:2*n_particles,:))/ii
+  !  xPx_av  = (xPx_av*(ii-1) + YY(1:n_particles,:)*YY((2*n_particles+1):3*n_particles,:))/ii
+  !  yPy_av  = (yPy_av*(ii-1) + YY(n_particles+1:2*n_particles,:)*YY((3*n_particles+1):4*n_particles,:))/ii
     kinEN_f_av = (kinEN_f_av*(ii-1) + kinEn_f)/ii
     xx_f_av    = (xx_f_av*(ii-1) + xx_f/(nsteps-st))/ii
     yy_f_av    = (yy_f_av*(ii-1) + yy_f/(nsteps-st))/ii
