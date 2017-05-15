@@ -252,7 +252,7 @@ program twoDChain
                   0.5d0*YYnew((3*n_particles+1):4*n_particles)*YYnew((3*n_particles+1):(4*n_particles)))/kk
       end if
       if(mod(jj,save_freq) .eq. 0) then
-        YYs(:,ll) = YY
+        YYs(:,ll) = YYnew
         ll = ll + 1
       end if
     end do
