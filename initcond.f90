@@ -26,7 +26,7 @@ module initcond_generator
        do
         call RANDOM_NUMBER(rg)                                        ! generate three uniformly distributed random numbers
         rg2=rg*rg*radius*radius                                        ! scale to chosen radius
-        if( sqrt(sum(rg)) .le. radius ) exit                          ! if the distance is larger than the radius, repeat
+        if( sqrt(sum(rg2)) .le. radius ) exit                          ! if the distance is larger than the radius, repeat
        end do
        !qq0((ii*dim+1):(ii*dim+dim)) = qq0((ii*dim+1):(ii*dim+dim)) + rg           ! add in the noise
        xx(ii) = xx0(ii) + rg(1)*radius
