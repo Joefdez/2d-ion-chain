@@ -17,7 +17,7 @@ module initcond_generator
      real(kind=8), intent(in)                   :: radius
      integer                                    :: ii
      logical                                    :: calc=.true.
-     real(kind=8), dimension(:), allocatable    :: rg
+     real(kind=8), dimension(:), allocatable    :: rg,rg2
      !open(unit=15, file="eq_pos.dat", action='read')
      call ranseed()
      allocate(rg(1:2))
@@ -25,12 +25,12 @@ module initcond_generator
      !   read(15,*) qq0((ii*dim+1):(ii*dim+dim))
        do
         call RANDOM_NUMBER(rg)                                        ! generate three uniformly distributed random numbers
-        rg=rg*rg*radius*radius                                        ! scale to chosen radius
+        rg2=rg*rg*radius*radius                                        ! scale to chosen radius
         if( sqrt(sum(rg)) .le. radius ) exit                          ! if the distance is larger than the radius, repeat
        end do
        !qq0((ii*dim+1):(ii*dim+dim)) = qq0((ii*dim+1):(ii*dim+dim)) + rg           ! add in the noise
-       xx(ii) = xx0(ii) + rg(1)
-       yy(ii) = yy0(ii) + rg(2)
+       xx(ii) = xx0(ii) + rg(1)*radius
+       yy(ii) = yy0(ii) + rg(2)*radius
      end do
 
    end subroutine icpgen
