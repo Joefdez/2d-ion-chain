@@ -232,6 +232,9 @@ program twoDChain
     call icpgen(n_particles, ic_radius, eqX, eqY, xx0(:), yy0(:))
     YYold(1:n_particles) =  xx0(:)
     YYold(n_particles+1:2*n_particles) = yy0(:)
+    YYs(1:n_particles,1) =   YYold(1:n_particles)
+    YYs(n_particles+1:2*n_particles,2) = YYold(n_particles+1:2*n_particles)
+    YYs(2*n_particles+1:,1) = 0.0d0
     print*, "Proc. ", rank, " on trajectory", ii
     kk = 0
     ll = 2
