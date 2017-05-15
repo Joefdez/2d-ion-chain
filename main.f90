@@ -19,7 +19,7 @@ program twoDChain
   real(kind=8), dimension(:,:), allocatable :: xPx_av, xPx_avt, yPy_av, yPy_avt
   real(kind=8), dimension(:,:), allocatable :: Px, Py !, Pz
   real(kind=8), dimension(:,:), allocatable :: Px_av, Py_av !, Pz_av
-  real(kind=8), dimension(:),   allocatable :: YY, YYi, AA, AAi
+  real(kind=8), dimension(:),   allocatable :: YYold, YYnew, YYi, AA, AAi
   real(kind=8), dimension(:,:), allocatable :: YYs
   real(kind=8), dimension(:,:), allocatable :: Cf1, Cf2, invD1, invD2
   real(kind=8), dimension(:), allocatable   :: xx0, yy0, zz0, eqX, eqY!, eq
@@ -174,8 +174,10 @@ program twoDChain
   !xPx_av = 0.0d0
   !allocate(yPy_avt(1:n_particles, n_ssteps))
   !yPy_av = 0.0d0
-  allocate(YY(1:4*n_particles))
-  YY=0.d0
+  allocate(YYold(1:4*n_particles))
+  YYold=0.d0
+  allocate(YYnew(1:4*n_particles))
+  YYnew=0.d0
   allocate(YYs(1:4*n_particles, 1:n_ssteps))
   YYs = 0.0d0
   allocate(Cf1(1:2*n_particles,1:2*n_particles))
@@ -225,28 +227,29 @@ program twoDChain
 
   do ii=1, local_traj, 1
     print*,"Process", rank, "on stochastic trajectory ", ii
-    YY = 0.0d0
+    YYold = 0.0d0
+    YYnew = 0.0d0
     call icpgen(n_particles, ic_radius, eqX, eqY, xx0(:), yy0(:))
-    YY(1:n_particles) =  xx0(:)
-    YY(n_particles+1:2*n_particles) = yy0(:)
+    YYold(1:n_particles) =  xx0(:)
+    YYold(n_particles+1:2*n_particles) = yy0(:)
     print*, "Proc. ", rank, " on trajectory", ii
     kk = 0
     ll = 2
     do jj=1, nsteps-1,1
       call stoch_vector(dst, n_particles,  stoch_terms, dStoc)
-      call Cforce(YY(1:n_particles), YY(n_particles+1:2*n_particles), n_particles, invD1, Cf1)
-      call ddt(YY(:), AA, n_particles, aeta1, aeta2, alpha, Cf1)
-      YYi = YY(:) + AA*dt + dStoc
+      call Cforce(YYold(1:n_particles), YYold(n_particles+1:2*n_particles), n_particles, invD1, Cf1)
+      call ddt(YYold(:), AA, n_particles, aeta1, aeta2, alpha, Cf1)
+      YYi = YYold(:) + AA*dt + dStoc
       call Cforce(YYi(1:n_particles), YYi(n_particles+1:2*n_particles), n_particles, invD2, Cf2)
       call ddt(YYi, AAi, n_particles, aeta1, aeta2, alpha, Cf2)
-      YY(:) = YY(:) + 0.5d0*(AA+AAi)*dt + dStoc
+      YYnew(:) = YYold(:) + 0.5d0*(AA+AAi)*dt + dStoc
       if(jj .gt. st) then
         kk = kk + 1
-        xx_f = (xx_f*(kk-1) + YY(1:n_particles))/kk
-        yy_f = (yy_f*(kk-1) + YY(n_particles+1:2*n_particles))/kk
+        xx_f = (xx_f*(kk-1) + YYnew(1:n_particles))/kk
+        yy_f = (yy_f*(kk-1) + YYnew(n_particles+1:2*n_particles))/kk
         kinEN_f = (kinEn_f*(kk-1) +&
-                  0.5d0*YY((2*n_particles+1):3*n_particles)*YY((2*n_particles+1):3*n_particles) +&
-                  0.5d0*YY((3*n_particles+1):4*n_particles)*YY((3*n_particles+1):(4*n_particles)))/kk
+                  0.5d0*YYnew((2*n_particles+1):3*n_particles)*YYnew((2*n_particles+1):3*n_particles) +&
+                  0.5d0*YYnew((3*n_particles+1):4*n_particles)*YYnew((3*n_particles+1):(4*n_particles)))/kk
       end if
       if(mod(jj,save_freq) .eq. 0) then
         YYs(:,ll) = YY
@@ -254,7 +257,7 @@ program twoDChain
       end if
     end do
 
-    YYs(:,int(nsteps/save_freq)) = YY
+    YYs(:,int(nsteps/save_freq)) = YYnew
 
     print*,"time over"
     kinEn_av = (kinEn_av*(ii-1) +&
@@ -273,7 +276,7 @@ program twoDChain
       call mpi_reduce(yy_av*ii, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   !    call mpi_reduce(xPx_av*ii, xPx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   !    call mpi_reduce(yPy_av*ii, yPy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-      call mpi_reduce(kinEn_f*ii, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+      call mpi_reduce(kinEn_f_av*ii, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(xx_f_av*ii, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(yy_f_av*ii, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
       call mpi_reduce(ii, p_traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
@@ -307,7 +310,6 @@ program twoDChain
   end do
 
   call mpi_barrier(mpi_comm_world, ierr)
-  print*, "Out of loop"
   call mpi_reduce(kinEn_av*local_traj, kinEn_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx_av*local_traj, xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy_av*local_traj, yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
