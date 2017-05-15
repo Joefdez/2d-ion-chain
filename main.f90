@@ -233,7 +233,7 @@ program twoDChain
     YYold(1:n_particles) =  xx0(:)
     YYold(n_particles+1:2*n_particles) = yy0(:)
     YYs(1:n_particles,1) =   YYold(1:n_particles)
-    YYs(n_particles+1:2*n_particles,2) = YYold(n_particles+1:2*n_particles)
+    YYs(n_particles+1:2*n_particles,1) = YYold(n_particles+1:2*n_particles)
     YYs(2*n_particles+1:,1) = 0.0d0
     print*, "Proc. ", rank, " on trajectory", ii
     kk = 0
@@ -258,6 +258,9 @@ program twoDChain
         YYs(:,ll) = YYnew
         ll = ll + 1
       end if
+
+      YYold = YYnew
+
     end do
 
     YYs(:,int(nsteps/save_freq)) = YYnew
