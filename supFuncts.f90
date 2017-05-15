@@ -17,16 +17,17 @@ module support_functions
     Cf = 0.0d0
     do ii=1, n_particles, 1
       dist = 0.0d0
-      do jj=ii+1, n_particles, 1
+      do jj=1, n_particles, 1
+        if(ii .eq. jj) cycle
         dist = (posx(ii)-posx(jj))*(posx(ii)-posx(jj)) + (posy(ii)-posy(jj))*(posy(ii)-posy(jj))
         dist = sqrt(dist)
         invD(ii,jj) = 1.0d0/dist
         invD(jj,ii) = 1.0d0/dist
         dist = (dist*dist*dist)
         Cf(ii,jj) = (posx(ii)-posx(jj))/dist
-        Cf(jj,ii) = -1.0d0 * (posx(ii)-posx(jj))/dist
+        !Cf(jj,ii) = -1.0d0 * (posx(ii)-posx(jj))/dist
         Cf(n_particles+ii, n_particles+jj) = (posy(ii)-posy(jj))/dist
-        Cf(n_particles+jj, n_particles+ii) = -1.0d0 * (posy(ii)-posy(jj))/dist
+        !Cf(n_particles+jj, n_particles+ii) = -1.0d0 * (posy(ii)-posy(jj))/dist
       end do
     end do
 
