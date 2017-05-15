@@ -47,7 +47,7 @@ program twoDChain
   real(kind=8) :: tt, dt, dst, st
   integer :: n_particles, traj, local_traj, nsteps, rem, save_freq, n_ssteps, p_traj
   integer ::n_elems
-  real(kind=8), dimension(:), allocatable   :: YYold, stoch_terms, dStoc
+  real(kind=8), dimension(:), allocatable   :: stoch_terms, dStoc
   integer                                   :: ii,jj, kk, ll
   real(kind=8)                              :: ic_radius
 
