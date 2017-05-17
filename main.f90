@@ -310,9 +310,16 @@ program twoDChain
   !      close(unit=14)
   !      close(unit=15)
         close(unit=16)
+        kinEN_avt =0.0d0
+        xx_avt = 0.0d0
+        yy_avt = 0.0d0
+        kinEn_avt = 0.0d0
+        kinEN_ft = 0.0d0
+        xx_ft = 0.0d0
+        yy_ft = 0.0d0
+        p_traj = 0
       end if
     end if
-    print*, rank, ii
   end do
 
   call mpi_barrier(mpi_comm_world, ierr)
