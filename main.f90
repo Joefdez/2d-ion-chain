@@ -324,8 +324,7 @@ program twoDChain
   call mpi_reduce(kinEn_f_av*local_traj, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx_f_av*local_traj, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy_f_av*local_traj, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
-  print*,"Everything written"
+  !call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
   if(rank .eq. 0) then
     print*, "Writing final results."
     open(unit=11, file="results/posX.dat")
