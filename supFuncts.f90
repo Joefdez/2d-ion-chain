@@ -44,10 +44,10 @@ module support_functions
 
     AA(1:2*n_particles)  = YY(2*n_particles+1:)
     do ii=1, n_particles, 1
-      AA(ii+2*n_particles) = -0.5d0*YY(ii) + sum(Cforce(ii,1:n_particles),1)
+      AA(ii+2*n_particles) = -1.0*YY(ii) + sum(Cforce(ii,1:n_particles),1)
     end do
     do ii=1, n_particles, 1
-      AA(ii+3*n_particles) = -0.5d0*alpha*alpha*YY(n_particles+ii) + sum(Cforce(n_particles+ii,(n_particles+1):),1)
+      AA(ii+3*n_particles) = -1.0*alpha*alpha*YY(n_particles+ii) + sum(Cforce(n_particles+ii,(n_particles+1):),1)
     end do
 
     do ii=1, 3, 1
