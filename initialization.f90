@@ -1,3 +1,4 @@
+
 ! module containing variable initializations
 
 module initialization
@@ -16,7 +17,7 @@ contains
     integer, parameter :: fh=15
     integer :: ios=0, line=0
 
-    integer, intent(inout) :: n_particles   ! number of partilcles
+    integer, intent(inout) :: n_particles   ! dimensionality of the problem, number of partilcles
 
     real(kind=8), intent(inout)  :: mass1, charge1, ic_radius
     real(kind=8), intent(inout)  :: alpha, long_freq
@@ -67,7 +68,7 @@ contains
 
   end subroutine initialize_system
 
-  subroutine initialize_laser_chain(del1, del2, Gam, omega, I1, I2)
+  subroutine initialize_laser_chain(del1, del2, delC, Gam, omega, I1, I2, IC)
     ! initialize laser and ion interaction parameters
 
     implicit none
@@ -77,9 +78,9 @@ contains
     integer :: pos
     integer, parameter :: fh=15
     integer :: ios=0, line=0
-    real(kind=8), intent(inout) :: del1, del2
+    real(kind=8), intent(inout) :: del1, del2, delC
     real(kind=8), intent(inout)  :: Gam, omega
-    real(kind=8), intent(inout) :: I1, I2
+    real(kind=8), intent(inout) :: I1, I2, IC
 
     open(unit=fh, file='chain_laser.dat',action='read')
 
@@ -97,6 +98,8 @@ contains
               read(buffer,*,iostat=ios) del1
           case('detuning_right')
               read(buffer,*,iostat=ios) del2
+          case('detuning_cool')
+              read(buffer,*,iostat=ios) delC
           case('linewidth')
               read(buffer,*,iostat=ios) Gam
           case('target_frequency')
@@ -105,6 +108,8 @@ contains
               read(buffer,*,iostat=ios) I1
           case('intensity_right')
                 read(buffer,*,iostat=ios) I2
+          case('intensity_cool')
+                read(buffer,*,iostat=ios) IC
           case default
                 print*, "Skipping invalid value."
         end select
