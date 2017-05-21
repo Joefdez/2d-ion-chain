@@ -310,9 +310,16 @@ program twoDChain
   !      close(unit=14)
   !      close(unit=15)
         close(unit=16)
+        kinEN_avt =0.0d0
+        xx_avt = 0.0d0
+        yy_avt = 0.0d0
+        kinEn_avt = 0.0d0
+        kinEN_ft = 0.0d0
+        xx_ft = 0.0d0
+        yy_ft = 0.0d0
+        p_traj = 0
       end if
     end if
-    print*, rank, ii
   end do
 
   call mpi_barrier(mpi_comm_world, ierr)
@@ -324,8 +331,7 @@ program twoDChain
   call mpi_reduce(kinEn_f_av*local_traj, kinEn_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx_f_av*local_traj, xx_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy_f_av*local_traj, yy_ft, n_particles, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
-  print*,"Everything written"
+  !call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
   if(rank .eq. 0) then
     print*, "Writing final results."
     open(unit=11, file="results/posX.dat")
