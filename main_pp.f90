@@ -60,7 +60,7 @@ program twoDChain
   call mpi_bcast(nparticles, 1, mpi_integer, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(traj, 1, mpi_integer, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(nsteps, 1, mpi_integer, 0, MPI_COMM_WORLD, ierr)
-  call mpi_bcast(savefreq, 1, mpi_integer, 0, MPI_COMM_WORLD, ierr)
+  call mpi_bcast(save_freq, 1, mpi_integer, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(mass, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(charge, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(tt, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
@@ -123,7 +123,7 @@ program twoDChain
   n_elems = nssteps*nparticles
   nbath = 3
 
-  print*, nparticles, nsteps, nssteps
+  print*, rank, nparticles, nsteps, nssteps
 
   allocate(xx0(1:nparticles))
   xx0 = 0.0d0
@@ -275,9 +275,23 @@ program twoDChain
      seconds1 = mpi_wtime()
   end if
 
+  if (rank .eq. 0) then
+    open(unit=15, file="eq_pos.dat", action='read')
+    do ii = 1, nparticles, 1
+      read(15,*) xx0(ii), yy0(ii)
+    end do
+  end if
+
+  call mpi_barrier(mpi_comm_world, ierr)
+  call mpi_bcast(xx0, nparticles, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
+  call mpi_bcast(yy0, nparticles, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
+
   do kk=1, local_traj, 1
     call icpgen(nparticles, 0.02d0, xx0, yy0, xxold, yyold)
     call ranseed()
+    xxs(1,:) = xxold
+    yys(1,:) = yyold
+    ll = 1
     do ii=1, nsteps-1, 1
       call coulombM(nparticles, xxold, yyold, fx1, fy1)
       fx = 0.0d0
@@ -307,7 +321,7 @@ program twoDChain
       yynew   = yyold + 0.5d0*(Ayy + Ayyi)*dt
       ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsCx*dOmxc + stermsBx*dOmx
       ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsCy*dOmyc + stermsBy*dOmy
-      if( mod(kk,save_freq) .eq. 0) then
+      if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
         xxs(:,ll)   = xxnew
         yys(:,ll)   = yynew
@@ -386,9 +400,11 @@ program twoDChain
   end do
   print*,"Proc ", rank, " finished integrating"
   call mpi_barrier(mpi_comm_world, ierr)
-
+  print*, "sending"
   call mpi_reduce(xx_av*kk , xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  print*, "sending"
   call mpi_reduce(yy_av*kk , yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  print*, "sending"
   call mpi_reduce(xx2_av*kk, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy2_av*kk, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppx_av*kk, ppx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -400,7 +416,6 @@ program twoDChain
   call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
 
   if(rank .eq. 0) then
-
     seconds = mpi_wtime() - seconds
     print*, "total integration + partial writing time:", seconds, seconds/3600.0d0
     !call date_and_time(values=time)
