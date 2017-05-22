@@ -318,8 +318,8 @@ program twoDChain
       call vecB_cool(dst, nparticles, dOmxc, dOmyc)
       xxnew   = xxold + 0.5d0*(Axx + Axxi)*dt
       yynew   = yyold + 0.5d0*(Ayy + Ayyi)*dt
-      ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsCx*dOmxc + stermsBx*dOmx
-      ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsCy*dOmyc + stermsBy*dOmy
+      ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsBx*dOmx + stermsCx*dOmxc
+      ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy + stermsCy*dOmyc 
       if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
         xxs(:,ll)   = xxnew
