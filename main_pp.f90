@@ -74,6 +74,7 @@ program twoDChain
   mass   = mass*uu
   charge = charge*ee
   long_freq = 2.0d0*pi*long_freq
+  dst = sqrt(dt)
   nsteps=int(tt/dt)
   char_length = ((charge*charge/(4.0d0*pi*ep0))/(mass*long_freq*long_freq))**(1.0/3.0)
   nssteps = int(nsteps/save_freq)  ! Not saving every single timestep saves memory. Must ask about this
@@ -301,18 +302,9 @@ program twoDChain
         fx(jj) = sum(fx1(jj,:), 1)
         fy(jj) = sum(fy1(jj,:), 1)
       end do
-      !call vecA(xxold, yyold, ppxold, ppyold, fx, fy, alpha, aeta1, aeta2, aetaC, nbath, nparticles, Axx, Ayy, Apx, Apy)
+      call vecA(xxold, yyold, ppxold, ppyold, fx, fy, alpha, aeta1, aeta2, aetaC, nbath, nparticles, Axx, Ayy, Apx, Apy)
       call vecB_edges(dst, nparticles, dOmx, dOmy)
       call vecB_cool(dst, nparticles, dOmxc, dOmyc)
-      Axx = ppxold
-      Ayy = ppyold
-      Apx = -1.0d0*xxold + fx -aetaC*ppxold
-      Apy = -1.0d0*alpha*alpha*yyold + fy - aetaC*ppyold
-      ! Thermal baths at edges
-      Apx(1:nbath) = Apx(1:nbath) - aeta1*ppxold(1:nbath)
-      Apx((nparticles-nbath+1):nparticles) = Apx((nparticles-nbath+1):nparticles) - aeta2*ppxold((nparticles-nbath+1):nparticles)
-      Apy(1:nbath) = Apy(1:nbath) - aeta1*ppyold(1:nbath)
-      Apy((nparticles-nbath+1):nparticles) = Apy((nparticles-nbath+1):nparticles) - aeta2*ppyold((nparticles-nbath+1):nparticles)
       xxi = xxold + Axx*dt
       yyi = yyold + Ayy*dt
       ppxi = ppxold + Apx*dt  + stermsBx*dOmx + stermsCx*dOmxc
@@ -324,18 +316,9 @@ program twoDChain
         fx(jj) = sum(fx2(jj,:), 1)
         fy(jj) = sum(fy2(jj,:), 1)
       end do
-      !call vecA(xxi, yyi, ppxi, ppyi, fx, fy, alpha, aeta1, aeta2, aetaC, nbath, nparticles, Axxi, Ayyi, Apxi, Apyi)
+      call vecA(xxi, yyi, ppxi, ppyi, fx, fy, alpha, aeta1, aeta2, aetaC, nbath, nparticles, Axxi, Ayyi, Apxi, Apyi)
       !call vecB_edges(dst, nparticles, dOmx, dOmy)
       !call vecB_cool(dst, nparticles, dOmxc, dOmyc)
-      Axxi = ppxi
-      Ayyi = ppyi
-      Apxi = -1.0d0*xxi + fx -aetaC*ppxi
-      Apyi = -1.0d0*alpha*alpha*yyi + fy - aetaC*ppyi
-      ! Thermal baths at edges
-      Apxi(1:nbath) = Apxi(1:nbath) - aeta1*ppxi(1:nbath)
-      Apxi((nparticles-nbath+1):nparticles) = Apxi((nparticles-nbath+1):nparticles) - aeta2*ppxi((nparticles-nbath+1):nparticles)
-      Apyi(1:nbath) = Apyi(1:nbath) - aeta1*ppyi(1:nbath)
-      Apyi((nparticles-nbath+1):nparticles) = Apyi((nparticles-nbath+1):nparticles) - aeta2*ppyi((nparticles-nbath+1):nparticles)
       xxnew   = xxold + 0.5d0*(Axx + Axxi)*dt
       yynew   = yyold + 0.5d0*(Ayy + Ayyi)*dt
       ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsBx*dOmx + stermsCx*dOmxc
