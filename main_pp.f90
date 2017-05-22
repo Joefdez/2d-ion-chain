@@ -121,7 +121,9 @@ program twoDChain
   rem = mod(traj, procs)
   if (rank .lt. rem) local_traj = local_traj + 1
   n_elems = nssteps*nparticles
+  nbath = 3
 
+  print*, nparticles, nsteps, nssteps
 
   allocate(xx0(1:nparticles))
   xx0 = 0.0d0
@@ -148,25 +150,25 @@ program twoDChain
   allocate(ppynew(1:nparticles))
   ppynew = 0.0d0
   allocate(xxs(1:nparticles, 1:nssteps))
-!  xx = 0.0d0
-!  allocate(yys(1:nparticles, 1:nssteps))
-!  yy = 0.0d0
-!  allocate(ppxs(1:nparticles, 1:nssteps))
-!  ppx = 0.0d0
-!  allocate(ppys(1:nparticles, 1:nssteps))
-!  ppy = 0.0d0
-!  allocate(xx2s(1:nparticles, 1:nssteps))
-!  xx2 = 0.0d0
-!  allocate(yy2s(1:nparticles, 1:nssteps))
-!  yy2 = 0.0d0
-!  allocate(ppx2s(1:nparticles, 1:nssteps))
-!  ppx2 = 0.0d0
-!  allocate(ppy2s(1:nparticles, 1:nssteps))
-!  ppy2 = 0.0d0
-!  allocate(xpxs(1:nparticles, 1:nssteps))
-!  xpx2 = 0.0d0
-!  allocate(ypys(1:nparticles, 1:nssteps))
-!  ypy2 = 0.0d0
+  xxs = 0.0d0
+  allocate(yys(1:nparticles, 1:nssteps))
+  yys = 0.0d0
+  allocate(ppxs(1:nparticles, 1:nssteps))
+  ppxs = 0.0d0
+  allocate(ppys(1:nparticles, 1:nssteps))
+  ppys = 0.0d0
+  allocate(xx2s(1:nparticles, 1:nssteps))
+  xx2s = 0.0d0
+  allocate(yy2s(1:nparticles, 1:nssteps))
+  yy2s = 0.0d0
+  allocate(ppx2s(1:nparticles, 1:nssteps))
+  ppx2s = 0.0d0
+  allocate(ppy2s(1:nparticles, 1:nssteps))
+  ppy2s = 0.0d0
+  allocate(xpxs(1:nparticles, 1:nssteps))
+  xpxs = 0.0d0
+  allocate(ypys(1:nparticles, 1:nssteps))
+  ypys = 0.0d0
   allocate(xxi(1:nparticles))
   xxi = 0.0d0
   allocate(yyi(1:nparticles))
