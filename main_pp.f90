@@ -123,8 +123,6 @@ program twoDChain
   n_elems = nssteps*nparticles
   nbath = 3
 
-  print*, rank, nparticles, nsteps, nssteps
-
   allocate(xx0(1:nparticles))
   xx0 = 0.0d0
   allocate(yy0(1:nparticles))
@@ -287,6 +285,7 @@ program twoDChain
   call mpi_bcast(yy0, nparticles, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
 
   do kk=1, local_traj, 1
+    print*, "Proc.", rank, "on trajectory", kk
     call icpgen(nparticles, 0.02d0, xx0, yy0, xxold, yyold)
     call ranseed()
     xxs(1,:) = xxold
