@@ -365,8 +365,8 @@ program twoDChain
      call mpi_reduce(kk, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
 
       if(rank .eq. 0) then
-       xx_avt   = xx_avt*char_length/traj
-       yy_avt   = yy_avt*char_length/traj
+       xx_avt   = xx_avt/traj!*char_length/traj
+       yy_avt   = yy_avt/traj!*char_length/traj
        xx2_avt  = xx2_avt*char_length*char_length/traj
        yy2_avt  = yy2_avt*char_length*char_length/traj
        ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
@@ -421,8 +421,8 @@ program twoDChain
     print*, "total integration + partial writing time:", seconds, seconds/3600.0d0
     !call date_and_time(values=time)
     !print*, "Integration completed at " ,time(5:)
-    xx_avt   = xx_avt*char_length/traj
-    yy_avt   = yy_avt*char_length/traj
+    xx_avt   = xx_avt/traj!*char_length/traj
+    yy_avt   = yy_avt/traj!*char_length/traj
     xx2_avt  = xx2_avt*char_length*char_length/traj
     yy2_avt  = yy2_avt*char_length*char_length/traj
     ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
