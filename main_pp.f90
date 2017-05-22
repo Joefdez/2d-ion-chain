@@ -301,7 +301,7 @@ program twoDChain
       end do
       call vecA(xxold, yyold, ppxold, ppyold, fx, fy, alpha, eta1, eta2, etaC, nbath, nparticles, Axx, Ayy, Apx, Apy)
       call vecB_edges(dst, nparticles, dOmx, dOmy)
-      call vecB_cool(dst, nparticles, dOmxc, dOmyc)
+      !call vecB_cool(dst, nparticles, dOmxc, dOmyc)
       xxi = xxold + Axx*dt
       yyi = yyold + Ayy*dt
       ppxi = ppxold + Apx*dt  + stermsBx*dOmx! + stermsCx*dOmxc
@@ -315,11 +315,11 @@ program twoDChain
       end do
       call vecA(xxi, yyi, ppxi, ppyi, fx, fy, alpha, eta1, eta2, etaC, nbath, nparticles, Axxi, Ayyi, Apxi, Apyi)
       call vecB_edges(dst, nparticles, dOmx, dOmy)
-      call vecB_cool(dst, nparticles, dOmxc, dOmyc)
+      !call vecB_cool(dst, nparticles, dOmxc, dOmyc)
       xxnew   = xxold + 0.5d0*(Axx + Axxi)*dt
       yynew   = yyold + 0.5d0*(Ayy + Ayyi)*dt
       ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsBx*dOmx !+ stermsCx*dOmxc
-      ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy !+ stermsCy*dOmyc 
+      ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy !+ stermsCy*dOmyc
       if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
         xxs(:,ll)   = xxnew
