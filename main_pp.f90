@@ -304,8 +304,8 @@ program twoDChain
       call vecB_cool(dst, nparticles, dOmxc, dOmyc)
       xxi = xxold + Axx*dt
       yyi = yyold + Ayy*dt
-      ppxi = ppxold + Apx*dt + stermsCx*dOmxc + stermsBx*dOmx
-      ppyi = ppyold + Apy*dt + stermsCy*dOmyc + stermsBy*dOmy
+      ppxi = ppxold + Apx*dt  + stermsBx*dOmx! + stermsCx*dOmxc
+      ppyi = ppyold + Apy*dt  + stermsBy*dOmy! + stermsCy*dOmyc
       fx = 0.0d0
       fy = 0.0d0
       call coulombM(nparticles, xxi, yyi, fx2, fy2)

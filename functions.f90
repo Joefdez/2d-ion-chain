@@ -62,8 +62,8 @@ module support_functions_twod
     ! Entire chain: harmnonic and coulomb forces, and cooling laser
     Axx = ppx
     Ayy = ppy
-    Apx = -1.0d0*xx + cfx -etaC*ppx
-    Apy = -1.0*alpha*alpha*yy + cfy - etaC*ppy
+    Apx = -1.0d0*xx + cfx !-etaC*ppx
+    Apy = -1.0*alpha*alpha*yy + cfy !- etaC*ppy
     ! Thermal baths at edges
     Apx(1:nbath) = Apx(1:nbath) - eta1*ppx(1:nbath)
     Apx((nparticles-nbath+1):nparticles) = Apx((nparticles-nbath+1):nparticles) - eta2*ppx((nparticles-nbath+1):nparticles)
