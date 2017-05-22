@@ -290,8 +290,8 @@ program twoDChain
     call ranseed()
     xxs(1,:) = xxold
     yys(1,:) = yyold
-    ppx = 0.0d0
-    ppy = 0.0d0
+    ppxold = 0.0d0
+    ppxnew = 0.0d0
     ll = 1
     do ii=1, nsteps-1, 1
       call coulombM(nparticles, xxold, yyold, fx1, fy1)
