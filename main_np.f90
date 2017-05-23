@@ -186,12 +186,12 @@ program twoDChain
       ppyold  = ppynew
     end do
     print*, xx_av(10,45000), xxs(10,45000), xx_av(10,45000)+xxs(10,45000)/kk
-    xx_av  = (xx_avo + xxs)/kk
+    xx_av  = (xx_avo*(kk-1) + xxs)/kk
     print*, xx_av(10,45000)
     print*, "------------------------------------------------------------------------"
     xx_avo  = xx_av
     print*, yy_av(10,45000), yys(10,45000), yy_av(10,45000)+yys(10,45000)/kk
-    yy_av  = (yy_avo + yys)/kk
+    yy_av  = (yy_avo*(kk-1) + yys)/kk
     print*, yy_av(10,45000)
     yy_avo  = yy_av
     ppx_av = (ppx_avo + ppxs)
