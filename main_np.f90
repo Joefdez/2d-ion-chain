@@ -191,9 +191,9 @@ program twoDChain
       open(unit=12, file="posY.dat")
       open(unit=13, file="temperatures.dat")
       do jj=1, nparticles
-        write(11,*) xx_avt(jj,:)/kk
-         write(12,*) yy_avt(jj,:)/kk
-         write(13,*) (ppx2_avt(jj,:) + ppy2_avt(jj,:))/kk
+        write(11,*) xx_av(jj,:)/kk
+         write(12,*) yy_av(jj,:)/kk
+         write(13,*) (ppx2_av(jj,:) + ppy2_av(jj,:))/kk
       end do
       close(unit=11)
       close(unit=12)
@@ -217,9 +217,9 @@ program twoDChain
   open(unit=12, file="posY.dat")
   open(unit=13, file="temperatures.dat")
   do jj=1, nparticles
-    write(11,*) xx_avt(jj,:)/traj
-     write(12,*) yy_avt(jj,:)/traj
-     write(13,*) (ppx2_avt(jj,:) + ppy2_avt(jj,:))/traj
+    write(11,*) xx_av(jj,:)/traj
+     write(12,*) yy_av(jj,:)/traj
+     write(13,*) (ppx2_av(jj,:) + ppy2_avt(jj,:))/traj
   end do
   close(unit=11)
   close(unit=12)
