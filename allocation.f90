@@ -112,9 +112,9 @@ ppx2_av = 0.0d0
 allocate(ppy2_av(1:nparticles, 1:nssteps))
 ppy2_av = 0.0d0
 allocate(xpx_av(1:nparticles, 1:nssteps))
-xpx_avo = 0.0d0
+xpx_av = 0.0d0
 allocate(ypy_av(1:nparticles, 1:nssteps))
-ypy_avo = 0.0d0
+ypy_av = 0.0d0
 
 allocate(xx_avo(1:nparticles, 1:(nsteps-fin)))
 xx_avo = 0.0d0
