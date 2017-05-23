@@ -21,6 +21,10 @@ program twoDChain
   real(kind=8), dimension(:,:), allocatable             :: xpx_avt, ypy_avt
   real(kind=8), dimension(:,:), allocatable             :: xx_av, yy_av, ppx_av, ppy_av
   real(kind=8), dimension(:,:), allocatable             :: xx2_av, yy2_av, ppx2_av, ppy2_av
+  real(kind=8), dimension(:,:), allocatable             :: xx_avo, yy_avo, ppx_avo, ppy_avo
+  real(kind=8), dimension(:,:), allocatable             :: xx2_avo, yy2_avo, ppx2_avo, ppy2_avo
+  real(kind=8), dimension(:,:), allocatable             :: xPx_av, yPy_av
+  real(kind=8), dimension(:,:), allocatable             :: xPx_avo, yPy_avo
   real(kind=8), dimension(:,:), allocatable             :: xPx_av, yPy_av
   real(kind=8), dimension(:), allocatable               :: xxi, yyi, ppxi, ppyi
   real(kind=8), dimension(:,:), allocatable             :: fx1, fy1, fx2, fy2
@@ -155,6 +159,8 @@ program twoDChain
     print*, "Proc.", rank, "on trajectory", kk
     call icpgen(nparticles, 0.02d0, xx0, yy0, xxold, yyold)
     call ranseed()
+    xxs = 0.0d0
+    yys = 0.0d0
     xxs(:,1) = xxold
     yys(:,1) = yyold
     ppxold = 0.0d0
@@ -289,6 +295,7 @@ program twoDChain
 
   if(rank .eq. 0) then
     seconds = mpi_wtime() - seconds
+
     print*, "total integration + partial writing time:", seconds, seconds/3600.0d0
     print*,traj
     !call date_and_time(values=time)
