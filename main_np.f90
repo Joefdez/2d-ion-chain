@@ -114,6 +114,7 @@ program twoDChain
 
 
   do kk=1, local_traj, 1
+    print*, "Trajectory", kk
     call icpgen(nparticles, 0.02d0, xx0, yy0, xxold, yyold)
     call ranseed()
     xxs = 0.0d0
@@ -184,7 +185,8 @@ program twoDChain
     ppy2_av = (ppy2_av + ppy2s)
     xpx_av  = (xpx_av + xpxs)
     ypy_av  = (ypy_av + ypys)
-    if(mod(local_traj,20) .eq. 0) then
+    if(mod(local_traj,5) .eq. 0) then
+      print*,"Partial results after trajectory=",kk
       open(unit=11, file="posX.dat")
       open(unit=12, file="posY.dat")
       open(unit=13, file="temperatures.dat")
