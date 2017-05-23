@@ -191,7 +191,7 @@ program twoDChain
     print*, "------------------------------------------------------------------------"
     xx_avo  = xx_av
     print*, yy_av(10,45000), yys(10,45000), yy_av(10,45000)+yys(10,45000)/kk
-    yy_av  = (yy_avo*(kk-1) + yys)/kk
+    yy_av  = yy_avo + yys
     print*, yy_av(10,45000)
     yy_avo  = yy_av
     ppx_av = (ppx_avo + ppxs)
