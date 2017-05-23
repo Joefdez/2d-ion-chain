@@ -211,28 +211,28 @@ program twoDChain
       ppxold  = ppxnew
       ppyold  = ppynew
     end do
-    xx_av  = (xx_av*(kk-1) + xxs)/kk
-    yy_av  = (yy_av*(kk-1) + yys)/kk
-    ppx_av = (ppx_av*(kk-1) + ppxs)/kk
-    ppy_av = (ppy_av*(kk-1) + ppys)/kk
-    xx2_av  = (xx2_av*(kk-1) + xx2s)/kk
-    yy2_av  = (yy2_av*(kk-1) + yy2s)/kk
-    ppx2_av = (ppx2_av*(kk-1) + ppx2s)/kk
-    ppy2_av = (ppy2_av*(kk-1) + ppy2s)/kk
-    xpx_av  = (xpx_av*(kk-1) + xpxs)/kk
-    ypy_av  = (ypy_av*(kk-1) + ypys)/kk
+    xx_av  = (xx_av + xxs)
+    yy_av  = (yy_av + yys)
+    ppx_av = (ppx_av + ppxs)
+    ppy_av = (ppy_av + ppys)
+    xx2_av  = (xx2_av + xx2s)
+    yy2_av  = (yy2_av + yy2s)
+    ppx2_av = (ppx2_av + ppx2s)
+    ppy2_av = (ppy2_av + ppy2s)
+    xpx_av  = (xpx_av + xpxs)
+    ypy_av  = (ypy_av + ypys)
     if( ( mod(kk,5) .eq. 0) .and. (kk .lt. int(traj/procs) ) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
-     call mpi_reduce(xx_av*kk , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(yy_av*kk , yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(xx2_av*kk, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(yy2_av*kk, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppx_av*kk, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppy_av*kk, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppx2_av*kk, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppy2_av*kk, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(xpx_av*kk, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ypy_av*kk, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(xx_av , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(yy_av , yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(ppy_av, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(ypy_av, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(kk, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
 
       if(rank .eq. 0) then
@@ -257,17 +257,17 @@ program twoDChain
        close(unit=11)
        close(unit=12)
        close(unit=13)
-       xx_avt   = 0.0d0
-       yy_avt   = 0.0d0
-       xx2_avt  = 0.0d0
-       yy2_avt  = 0.0d0
-       ppx_avt  = 0.0d0
-       ppy_avt  = 0.0d0
-       ppx2_avt = 0.0d0
-       ppy2_avt = 0.0d0
-       xpx_avt  = 0.0d0
-       ypy_avt  = 0.000
-      end if
+     end if
+     xx_avt   = 0.0d0
+     yy_avt   = 0.0d0
+     xx2_avt  = 0.0d0
+     yy2_avt  = 0.0d0
+     ppx_avt  = 0.0d0
+     ppy_avt  = 0.0d0
+     ppx2_avt = 0.0d0
+     ppy2_avt = 0.0d0
+     xpx_avt  = 0.0d0
+     ypy_avt  = 0.000
     end if
   end do
   print*,"Proc ", rank, " finished integrating"
@@ -290,6 +290,7 @@ program twoDChain
   if(rank .eq. 0) then
     seconds = mpi_wtime() - seconds
     print*, "total integration + partial writing time:", seconds, seconds/3600.0d0
+    print*,traj
     !call date_and_time(values=time)
     !print*, "Integration completed at " ,time(5:)
     xx_avt   = xx_avt/traj!*char_length/traj
