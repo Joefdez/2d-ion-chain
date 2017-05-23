@@ -79,7 +79,8 @@ program twoDChain
   char_length = ((charge*charge/(4.0d0*pi*ep0))/(mass*long_freq*long_freq))**(1.0/3.0)
   nssteps = int(nsteps/save_freq)  ! Not saving every single timestep saves memory. Must ask about this
   fin = 0.8*nsteps
-
+  print*, rank, nsteps, fin, nsteps-fin
+  print*, rank, mass, charge, dt, dst
 
   if(rank .eq. 0) then
     print*, "Reading laser parameters"
@@ -159,7 +160,7 @@ program twoDChain
     ppxold = 0.0d0
     ppyold = 0.0d0
     ll = 1
-    mm = 0
+    mm = 1
     do ii=1, nsteps-1, 1
       call coulombM(nparticles, xxold, yyold, fx1, fy1)
       fx = 0.0d0
@@ -170,11 +171,11 @@ program twoDChain
       end do
       call vecA(xxold, yyold, ppxold, ppyold, fx, fy, alpha, aeta1, aeta2, aetaC, nbath, nparticles, Axx, Ayy, Apx, Apy)
       call vecB_edges(dst, nparticles, dOmx, dOmy)
-      call vecB_cool(dst, nparticles, dOmxc, dOmyc)
+      !call vecB_cool(dst, nparticles, dOmxc, dOmyc)
       xxi = xxold + Axx*dt
       yyi = yyold + Ayy*dt
-      ppxi = ppxold + Apx*dt  + stermsBx*dOmx + stermsCx*dOmxc
-      ppyi = ppyold + Apy*dt  + stermsBy*dOmy + stermsCy*dOmyc
+      ppxi = ppxold + Apx*dt  + stermsBx*dOmx !+ stermsCx*dOmxc
+      ppyi = ppyold + Apy*dt  + stermsBy*dOmy !+ stermsCy*dOmyc
       fx = 0.0d0
       fy = 0.0d0
       call coulombM(nparticles, xxi, yyi, fx2, fy2)
@@ -187,8 +188,8 @@ program twoDChain
       !call vecB_cool(dst, nparticles, dOmxc, dOmyc)
       xxnew   = xxold + 0.5d0*(Axx + Axxi)*dt
       yynew   = yyold + 0.5d0*(Ayy + Ayyi)*dt
-      ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsBx*dOmx + stermsCx*dOmxc
-      ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy + stermsCy*dOmyc
+      ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsBx*dOmx !+ stermsCx*dOmxc
+      ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy !+ stermsCy*dOmyc
       if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
         xx2s(:,ll)  = xxnew*xxnew
@@ -222,12 +223,12 @@ program twoDChain
     ypy_av  = (ypy_av*(kk-1) + ypys)/kk
     if( ( mod(kk,5) .eq. 0) .and. (kk .lt. int(traj/procs) ) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
-     call mpi_reduce(xx_av*kk , xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(yy_av*kk , yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(xx_av*kk , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(yy_av*kk , yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xx2_av*kk, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(yy2_av*kk, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppx_av*kk, ppx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppy_av*kk, ppy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(ppx_av*kk, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(ppy_av*kk, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppx2_av*kk, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppy2_av*kk, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xpx_av*kk, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -271,17 +272,20 @@ program twoDChain
   end do
   print*,"Proc ", rank, " finished integrating"
   call mpi_barrier(mpi_comm_world, ierr)
-  call mpi_reduce(xx_av*local_traj , xx_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yy_av*local_traj , yy_avt , n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(xx_av*local_traj , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(yy_av*local_traj , yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx2_av*local_traj, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy2_av*local_traj, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppx_av*local_traj, ppx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppy_av*local_traj, ppy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(ppx_av*local_traj, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(ppy_av*local_traj, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppx2_av*local_traj, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppy2_av*local_traj, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xpx_av*local_traj, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ypy_av*local_traj, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
+
+
+  call mpi_barrier(mpi_comm_world, ierr)
 
   if(rank .eq. 0) then
     seconds = mpi_wtime() - seconds
@@ -315,7 +319,7 @@ program twoDChain
 
   end if
     ! back to physical units
-
+  print*, mm
   call mpi_finalize(ierr)
 
 

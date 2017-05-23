@@ -3,11 +3,14 @@
 from numpy import *
 from matplotlib.pylab import *
 ion()
-xx = loadtxt("results/posx.dat")
-yy = loadtxt("results/posy.dat")
+#xx = loadtxt("results/posx.dat")
+#yy = loadtxt("results/posy.dat")
+xx = loadtxt("posX.dat")
+yy = loadtxt("posY.dat")
+
 
 dims = shape(xx)
-frac = int(dims[1]*0.1)
+frac = int(dims[1])
 xxf = zeros([frac*30])
 yyf = zeros([frac*30])
 
@@ -19,7 +22,7 @@ xx
 yy
 
 gauss = 0.001
-nx, ny = 200,  100
+nx, ny = 400,  200
 xl, xr = -6.0, 6.0
 yb, yt = -0.2, 0.2
 dx = (xr-xl)/(nx-1)
@@ -39,7 +42,7 @@ chain = figure("chain")
 axes  = chain.add_subplot(111)
 
 
-axes.imshow(H, interpolation='nearest', origin='low',
+axes.imshow(H, origin='low',
             extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]])
 
 axes.set_aspect(8)

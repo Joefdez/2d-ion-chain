@@ -22,7 +22,7 @@ program twoDChain
   dt = 1.0d-3
   nsteps = int(tt/dt)
   nparticles = 30
-  alpha = 9.00d0
+  alpha = 7.00d0
   print*, "alpha", alpha
   allocate(xx0(1:nparticles))
   xx0 = 0.0d0
