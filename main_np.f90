@@ -178,9 +178,14 @@ program twoDChain
       ppxold  = ppxnew
       ppyold  = ppynew
     end do
+    print*, xx_av(10,45000), xxs(10,45000), xx_av(10,45000)+xxs(10,45000)
     xx_av  = (xx_avo + xxs)
+    print*, xx_av(10,45000)
+    print*, "------------------------------------------------------------------------"
     xx_avo  = xx_av
+    print*, yy_av(10,45000), yys(10,45000), yy_av(10,45000)+yys(10,45000)
     yy_av  = (yy_avo + yys)
+    print*, yy_av(10,45000)
     yy_avo  = yy_av
     ppx_av = (ppx_avo + ppxs)
     ppx_avo    = ppx_av
@@ -230,7 +235,7 @@ program twoDChain
   open(unit=12, file="posY.dat")
   open(unit=13, file="temperatures.dat")
   do jj=1, nparticles
-    write(11,*) xx_av(jj,:)/traj
+     write(11,*) xx_av(jj,:)/traj
      write(12,*) yy_av(jj,:)/traj
      write(13,*) (ppx2_av(jj,:) + ppy2_avt(jj,:))/traj
   end do
