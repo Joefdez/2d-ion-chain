@@ -22,13 +22,13 @@ allocate(ppxnew(1:nparticles))
 ppxnew = 0.0d0
 allocate(ppynew(1:nparticles))
 ppynew = 0.0d0
-allocate(xxs(1:nparticles, 1:nssteps))
+allocate(xxs(1:nparticles, 1:(nssteps-fin)))
 xxs = 0.0d0
-allocate(yys(1:nparticles, 1:nssteps))
+allocate(yys(1:nparticles, 1:(nssteps-fin)))
 yys = 0.0d0
-allocate(ppxs(1:nparticles, 1:nssteps))
+allocate(ppxs(1:nparticles, 1:(nssteps-fin)))
 ppxs = 0.0d0
-allocate(ppys(1:nparticles, 1:nssteps))
+allocate(ppys(1:nparticles, 1:(nssteps-fin)))
 ppys = 0.0d0
 allocate(xx2s(1:nparticles, 1:nssteps))
 xx2s = 0.0d0
@@ -95,13 +95,13 @@ stermsCx = 0.0d0
 allocate(stermsCy(1:nparticles))
 stermsCy = 0.0d0
 
-allocate(xx_av(1:nparticles, 1:nssteps))
+allocate(xx_av(1:nparticles, 1:(nsteps-fin)))
 xx_av = 0.0d0
-allocate(yy_av(1:nparticles, 1:nssteps))
+allocate(yy_av(1:nparticles, 1:(nsteps-fin)))
 yy_av = 0.0d0
-allocate(ppx_av(1:nparticles, 1:nssteps))
+allocate(ppx_av(1:nparticles, 1:(nssteps-fin)))
 ppx_av = 0.0d0
-allocate(ppy_av(1:nparticles, 1:nssteps))
+allocate(ppy_av(1:nparticles, 1:(nssteps-fin)))
 ppy_av = 0.0d0
 allocate(xx2_av(1:nparticles, 1:nssteps))
 xx2_av = 0.0d0
@@ -116,13 +116,13 @@ xpx_av = 0.0d0
 allocate(ypy_av(1:nparticles, 1:nssteps))
 ypy_av = 0.0d0
 
-allocate(xx_avt(1:nparticles, 1:nssteps))
+allocate(xx_avt(1:nparticles, 1:(nssteps-fin)))
 xx_avt = 0.0d0
-allocate(yy_avt(1:nparticles, 1:nssteps))
+allocate(yy_avt(1:nparticles, 1:(nssteps-fin)))
 yy_avt = 0.0d0
-allocate(ppx_avt(1:nparticles, 1:nssteps))
+allocate(ppx_avt(1:nparticles, 1:(nssteps-fin)))
 ppx_avt = 0.0d0
-allocate(ppy_avt(1:nparticles, 1:nssteps))
+allocate(ppy_avt(1:nparticles, 1:(nssteps-fin)))
 ppy_avt = 0.0d0
 allocate(xx2_avt(1:nparticles, 1:nssteps))
 xx2_avt = 0.0d0

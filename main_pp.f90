@@ -42,9 +42,9 @@ program twoDChain
   real(kind=8)                                          :: D1, aD1, D2, aD2
   real(kind=8)                                          :: etaC, DC
   real(kind=8)                                          :: aetaC, aDC
-  integer                                               :: nsteps, savefreq, nssteps, nparticles, nbath, n_elems
+  integer                                               :: nsteps, savefreq, nssteps, nparticles, nbath, n_elems, fin
   integer                                               :: traj, local_traj, save_freq, rem
-  integer                                               :: ii,jj, kk, ll
+  integer                                               :: ii,jj, kk, ll, mm
   real(kind=8)                                          :: seconds, seconds1
   ! mpi variables
   integer :: rank, procs, status(MPI_STATUS_SIZE), alloc_err, source, ierr
@@ -78,6 +78,7 @@ program twoDChain
   nsteps=int(tt/dt)
   char_length = ((charge*charge/(4.0d0*pi*ep0))/(mass*long_freq*long_freq))**(1.0/3.0)
   nssteps = int(nsteps/save_freq)  ! Not saving every single timestep saves memory. Must ask about this
+  fin = 0.8*nsteps
 
   if(rank .eq. 0) then
     print*, "Reading laser parameters"
@@ -157,6 +158,7 @@ program twoDChain
     ppxold = 0.0d0
     ppyold = 0.0d0
     ll = 1
+    mm = 0
     do ii=1, nsteps-1, 1
       call coulombM(nparticles, xxold, yyold, fx1, fy1)
       fx = 0.0d0
@@ -188,16 +190,19 @@ program twoDChain
       ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy + stermsCy*dOmyc
       if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
-        xxs(:,ll)   = xxnew
-        yys(:,ll)   = yynew
-        ppxs(:,ll)  = ppxnew
-        ppys(:,ll)  = ppynew
         xx2s(:,ll)  = xxnew*xxnew
         yy2s(:,ll)  = yynew*yynew
         ppx2s(:,ll) = ppxnew*ppxnew
         ppy2s(:,ll) = ppynew*ppynew
         xpxs(:,ll)  = xxnew*ppxnew
         ypys(:,ll)  = yynew*ppynew
+      end if
+      if( ii .ge. fin) then
+        xxs(:,mm)   = xxnew
+        yys(:,mm)   = yynew
+        ppxs(:,mm)  = ppxnew
+        ppys(:,mm)  = ppynew
+        mm = mm + 1
       end if
       xxold   = xxnew
       yyold   = yynew

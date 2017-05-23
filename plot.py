@@ -15,8 +15,8 @@ for ii in range(0,30):
     xxf[ii*frac:(ii+1)*frac] = xx[ii,-1*frac:]
     yyf[ii*frac:(ii+1)*frac] = yy[ii,-1*frac:]
 
-del xx
-del yy
+xx
+yy
 
 gauss = 0.001
 nx, ny = 200,  100
