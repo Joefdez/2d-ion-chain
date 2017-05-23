@@ -272,16 +272,16 @@ program twoDChain
   end do
   print*,"Proc ", rank, " finished integrating"
   call mpi_barrier(mpi_comm_world, ierr)
-  call mpi_reduce(xx_av*local_traj , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yy_av*local_traj , yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xx2_av*local_traj, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yy2_av*local_traj, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppx_av*local_traj, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppy_av*local_traj, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppx2_av*local_traj, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppy2_av*local_traj, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xpx_av*local_traj, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ypy_av*local_traj, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(xx_av , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(yy_av, yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(ppy_av, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(ypy_av, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
 
 
