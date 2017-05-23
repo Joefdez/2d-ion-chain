@@ -118,14 +118,21 @@ program twoDChain
 
   do kk=1, local_traj, 1
     print*, "Trajectory", kk
+    xxold = 0.0d0
+    yyold = 0.0d0
+    xxnew = 0.0d0
+    yynew = 0.0d0
+    ppxold = 0.0d0
+    ppyold = 0.0d0
+    ppxnew = 0.0d0
+    ppynew = 0.0d0
     call icpgen(nparticles, 0.02d0, xx0, yy0, xxold, yyold)
     call ranseed()
     xxs = 0.0d0
     yys = 0.0d0
     xxs(:,1) = xxold
     yys(:,1) = yyold
-    ppxold = 0.0d0
-    ppyold = 0.0d0
+
     ll = 1
     mm = 1
     do ii=1, nsteps-1, 1
@@ -178,13 +185,13 @@ program twoDChain
       ppxold  = ppxnew
       ppyold  = ppynew
     end do
-    print*, xx_av(10,45000), xxs(10,45000), xx_av(10,45000)+xxs(10,45000)
-    xx_av  = (xx_avo + xxs)
+    print*, xx_av(10,45000), xxs(10,45000), xx_av(10,45000)+xxs(10,45000)/kk
+    xx_av  = (xx_avo + xxs)/kk
     print*, xx_av(10,45000)
     print*, "------------------------------------------------------------------------"
     xx_avo  = xx_av
-    print*, yy_av(10,45000), yys(10,45000), yy_av(10,45000)+yys(10,45000)
-    yy_av  = (yy_avo + yys)
+    print*, yy_av(10,45000), yys(10,45000), yy_av(10,45000)+yys(10,45000)/kk
+    yy_av  = (yy_avo + yys)/kk
     print*, yy_av(10,45000)
     yy_avo  = yy_av
     ppx_av = (ppx_avo + ppxs)
@@ -210,8 +217,8 @@ program twoDChain
       open(unit=13, file="temperatures.dat")
       do jj=1, nparticles
         write(11,*) xx_av(jj,:)/kk
-         write(12,*) yy_av(jj,:)/kk
-         write(13,*) (ppx2_av(jj,:) + ppy2_av(jj,:))/kk
+        write(12,*) yy_av(jj,:)/kk
+        write(13,*) (ppx2_av(jj,:) + ppy2_av(jj,:))/kk
       end do
       close(unit=11)
       close(unit=12)
@@ -237,7 +244,7 @@ program twoDChain
   do jj=1, nparticles
      write(11,*) xx_av(jj,:)/traj
      write(12,*) yy_av(jj,:)/traj
-     write(13,*) (ppx2_av(jj,:) + ppy2_avt(jj,:))/traj
+     write(13,*) (ppx2_av(jj,:) + ppy2_av(jj,:))/traj
   end do
   close(unit=11)
   close(unit=12)
