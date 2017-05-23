@@ -112,9 +112,31 @@ ppx2_av = 0.0d0
 allocate(ppy2_av(1:nparticles, 1:nssteps))
 ppy2_av = 0.0d0
 allocate(xpx_av(1:nparticles, 1:nssteps))
-xpx_av = 0.0d0
+xpx_avo = 0.0d0
 allocate(ypy_av(1:nparticles, 1:nssteps))
-ypy_av = 0.0d0
+ypy_avo = 0.0d0
+
+allocate(xx_avo(1:nparticles, 1:(nsteps-fin)))
+xx_avo = 0.0d0
+allocate(yy_avo(1:nparticles, 1:(nsteps-fin)))
+yy_avo = 0.0d0
+allocate(ppx_avo(1:nparticles, 1:(nsteps-fin)))
+ppx_avo = 0.0d0
+allocate(ppy_avo(1:nparticles, 1:(nsteps-fin)))
+ppy_avo = 0.0d0
+allocate(xx2_avo(1:nparticles, 1:nssteps))
+xx2_avo = 0.0d0
+allocate(yy2_avo(1:nparticles, 1:nssteps))
+yy2_avo = 0.0d0
+allocate(ppx2_avo(1:nparticles, 1:nssteps))
+ppx2_avo = 0.0d0
+allocate(ppy2_avo(1:nparticles, 1:nssteps))
+ppy2_avo = 0.0d0
+allocate(xpx_avo(1:nparticles, 1:nssteps))
+xpx_avo = 0.0d0
+allocate(ypy_avo(1:nparticles, 1:nssteps))
+ypy_avo = 0.0d0
+
 
 allocate(xx_avt(1:nparticles, 1:(nsteps-fin)))
 xx_avt = 0.0d0

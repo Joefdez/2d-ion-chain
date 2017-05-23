@@ -21,7 +21,10 @@ program twoDChain
   real(kind=8), dimension(:,:), allocatable             :: xpx_avt, ypy_avt
   real(kind=8), dimension(:,:), allocatable             :: xx_av, yy_av, ppx_av, ppy_av
   real(kind=8), dimension(:,:), allocatable             :: xx2_av, yy2_av, ppx2_av, ppy2_av
+  real(kind=8), dimension(:,:), allocatable             :: xx_avo, yy_avo, ppx_avo, ppy_avo
+  real(kind=8), dimension(:,:), allocatable             :: xx2_avo, yy2_avo, ppx2_avo, ppy2_avo
   real(kind=8), dimension(:,:), allocatable             :: xPx_av, yPy_av
+  real(kind=8), dimension(:,:), allocatable             :: xPx_avo, yPy_avo
   real(kind=8), dimension(:), allocatable               :: xxi, yyi, ppxi, ppyi
   real(kind=8), dimension(:,:), allocatable             :: fx1, fy1, fx2, fy2
   real(kind=8), dimension(:), allocatable               :: fx, fy
@@ -175,16 +178,26 @@ program twoDChain
       ppxold  = ppxnew
       ppyold  = ppynew
     end do
-    xx_av  = (xx_av + xxs)
-    yy_av  = (yy_av + yys)
-    ppx_av = (ppx_av + ppxs)
-    ppy_av = (ppy_av + ppys)
-    xx2_av  = (xx2_av + xx2s)
-    yy2_av  = (yy2_av + yy2s)
-    ppx2_av = (ppx2_av + ppx2s)
-    ppy2_av = (ppy2_av + ppy2s)
-    xpx_av  = (xpx_av + xpxs)
-    ypy_av  = (ypy_av + ypys)
+    xx_av  = (xx_avo + xxs)
+    xx_avo  = xx_av
+    yy_av  = (yy_avo + yys)
+    yy_avo  = yy_av
+    ppx_av = (ppx_avo + ppxs)
+    ppx_avo    = ppx_av
+    ppy_av = (ppy_avo + ppys)
+    ppy_avo    = ppy_av
+    xx2_av  = (xx2_avo + xx2s)
+    xx2_avo  = xx2_av
+    yy2_av  = (yy2_avo + yy2s)
+    yy2_avo  = yy2_av
+    ppx2_av = (ppx2_avo + ppx2s)
+    ppx2_avo = ppx2_av
+    ppy2_av = (ppy2_avo + ppy2s)
+    ppy2_avo = ppy2_av
+    xpx_av  = (xpx_avo + xpxs)
+    xpx_avo = xpx_av
+    ypy_av  = (ypy_avo + ypys)
+    ypy_avo = ypy_av
     if(mod(kk,5) .eq. 0) then
       print*,"Partial results after trajectory=",kk
       open(unit=11, file="posX.dat")
