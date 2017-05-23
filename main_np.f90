@@ -212,5 +212,18 @@ program twoDChain
   xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
   ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
 
+  print*,"Partial results after trajectory=",kk
+  open(unit=11, file="posX.dat")
+  open(unit=12, file="posY.dat")
+  open(unit=13, file="temperatures.dat")
+  do jj=1, nparticles
+    write(11,*) xx_avt(jj,:)/traj
+     write(12,*) yy_avt(jj,:)/traj
+     write(13,*) (ppx2_avt(jj,:) + ppy2_avt(jj,:))/traj
+  end do
+  close(unit=11)
+  close(unit=12)
+  close(unit=13)
+
 
 end program twoDChain
