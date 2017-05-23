@@ -80,6 +80,7 @@ program twoDChain
   nssteps = int(nsteps/save_freq)  ! Not saving every single timestep saves memory. Must ask about this
   fin = 0.8*nsteps
 
+
   if(rank .eq. 0) then
     print*, "Reading laser parameters"
     call initialize_laser_chain(del1, del2, delC, Gam, omega0, I1, I2, IC)
@@ -153,8 +154,8 @@ program twoDChain
     print*, "Proc.", rank, "on trajectory", kk
     call icpgen(nparticles, 0.02d0, xx0, yy0, xxold, yyold)
     call ranseed()
-    xxs(1,:) = xxold
-    yys(1,:) = yyold
+    xxs(:,1) = xxold
+    yys(:,1) = yyold
     ppxold = 0.0d0
     ppyold = 0.0d0
     ll = 1
