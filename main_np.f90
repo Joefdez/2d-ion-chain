@@ -185,32 +185,27 @@ program twoDChain
       ppxold  = ppxnew
       ppyold  = ppynew
     end do
-    print*, xx_av(10,45000), xxs(10,45000), xx_av(10,45000)+xxs(10,45000)/kk
     xx_av  = (xx_avo*(kk-1) + xxs)/kk
-    print*, xx_av(10,45000)
-    print*, "------------------------------------------------------------------------"
     xx_avo  = xx_av
-    print*, yy_av(10,45000), yys(10,45000), yy_av(10,45000)+yys(10,45000)/kk
     yy_av  = (yy_avo*(kk-1) + yys)/kk
-    print*, yy_av(10,45000)
     yy_avo  = yy_av
-    ppx_av = (ppx_avo + ppxs)
+    ppx_av = (ppx_avo*(kk-1) + ppxs)/kk
     ppx_avo    = ppx_av
-    ppy_av = (ppy_avo + ppys)
+    ppy_av = (ppy_avo*(kk-1) + ppys)/kk
     ppy_avo    = ppy_av
-    xx2_av  = (xx2_avo + xx2s)
+    xx2_av  = (xx2_avo*(kk-1) + xx2s)/kk
     xx2_avo  = xx2_av
-    yy2_av  = (yy2_avo + yy2s)
+    yy2_av  = (yy2_avo*(kk-1) + yy2s)/kk
     yy2_avo  = yy2_av
-    ppx2_av = (ppx2_avo + ppx2s)
+    ppx2_av = (ppx2_avo*(kk-1) + ppx2s)/kk
     ppx2_avo = ppx2_av
-    ppy2_av = (ppy2_avo + ppy2s)
+    ppy2_av = (ppy2_avo*(kk-1) + ppy2s)/kk
     ppy2_avo = ppy2_av
-    xpx_av  = (xpx_avo + xpxs)
+    xpx_av  = (xpx_avo*(kk-1) + xpxs)/kk
     xpx_avo = xpx_av
-    ypy_av  = (ypy_avo + ypys)
+    ypy_av  = (ypy_avo*(kk-1) + ypys)/kk
     ypy_avo = ypy_av
-    if(mod(kk,5) .eq. 0) then
+    if(mod(kk,1) .eq. 0) then
       print*,"Partial results after trajectory=",kk
       open(unit=11, file="posX.dat")
       open(unit=12, file="posY.dat")
@@ -218,7 +213,7 @@ program twoDChain
       do jj=1, nparticles
         write(11,*) xx_av(jj,:)
         write(12,*) yy_av(jj,:)
-        write(13,*) (ppx2_av(jj,:) + ppy2_av(jj,:))/kk
+        write(13,*) (ppx2_av(jj,:) + ppy2_av(jj,:))
       end do
       close(unit=11)
       close(unit=12)
@@ -226,14 +221,14 @@ program twoDChain
     end if
   end do
 
-  xx_avt   = xx_avt/traj!*char_length/traj
-  yy_avt   = yy_avt/traj!*char_length/traj
-  xx2_avt  = xx2_avt*char_length*char_length/traj
-  yy2_avt  = yy2_avt*char_length*char_length/traj
-  ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
-  ppy_avt  = ppy_avt*char_length*mass*long_freq/traj
-  ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
-  ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
+  xx_avt   = xx_avt!*char_length/traj
+  yy_avt   = yy_avt!*char_length/traj
+  xx2_avt  = xx2_avt*char_length*char_length
+  yy2_avt  = yy2_avt*char_length*char_length
+  ppx_avt  = ppx_avt*char_length*mass*long_freq
+  ppy_avt  = ppy_avt*char_length*mass*long_freq
+  ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb) ! Convert to temperature in mK
+  ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb) ! Convert to temperature in mK
   xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
   ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
 
@@ -242,9 +237,9 @@ program twoDChain
   open(unit=12, file="posY.dat")
   open(unit=13, file="temperatures.dat")
   do jj=1, nparticles
-     write(11,*) xx_av(jj,:)/traj
-     write(12,*) yy_av(jj,:)/traj
-     write(13,*) (ppx2_av(jj,:) + ppy2_av(jj,:))/traj
+     write(11,*) xx_av(jj,:)
+     write(12,*) yy_av(jj,:)
+     write(13,*) (ppx2_av(jj,:) + ppy2_av(jj,:))
   end do
   close(unit=11)
   close(unit=12)

@@ -60,10 +60,10 @@ module support_functions_twod
     real(kind=8), dimension(:), intent(inout)           :: Axx, Ayy, Apx, Apy
 
     ! Entire chain: harmnonic and coulomb forces, and cooling laser
-    Axx = ppx
-    Ayy = ppy
-    Apx = -1.0d0*xx + cfx !-etaC*ppx
-    Apy = -1.0d0*alpha*alpha*yy + cfy !- etaC*ppy
+    Axx(1:nparticles) = ppx(1:nparticles)
+    Ayy(1:nparticles) = ppy(1:nparticles)
+    Apx(1:nparticles) = -1.0d0*xx(1:nparticles) + cfx(1:nparticles) !-etaC*ppx
+    Apy(1:nparticles) = -1.0d0*alpha*alpha*yy(1:nparticles) + cfy(1:nparticles) !- etaC*ppy
     ! Thermal baths at edges
     Apx(1:nbath) = Apx(1:nbath) - eta1*ppx(1:nbath)
     Apx((nparticles-nbath+1):nparticles) = Apx((nparticles-nbath+1):nparticles) - eta2*ppx((nparticles-nbath+1):nparticles)
