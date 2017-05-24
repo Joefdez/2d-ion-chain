@@ -81,7 +81,7 @@ program twoDChain
 
   k1 =  omega1 / cc   ! Not really wavelengths, dimensionally they are wavenumbers
   k2 =  omega2 / cc
-  kC = omegaC  / cc
+  kC =  omegaC / cc
  ! Calculate diffusion and friction coefficients
   eta1 = -4.0d0*hbar*k1*k1*I1*(2.0d0*del1/Gam)/( (1 + 4.0d0*del1*del1/(Gam*Gam)) * (1 + 4.0d0*del1*del1/(Gam*Gam)) )
   eta2 = -4.0d0*hbar*k2*k2*I2*(2.0d0*del2/Gam)/( (1 + 4.0d0*del2*del2/(Gam*Gam)) * (1 + 4.0d0*del2*del2/(Gam*Gam)) )
@@ -132,7 +132,6 @@ program twoDChain
     yys = 0.0d0
     xxs(:,1) = xxold
     yys(:,1) = yyold
-
     ll = 1
     mm = 1
     do ii=1, nsteps-1, 1
