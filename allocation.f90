@@ -30,6 +30,10 @@ allocate(ppxs(1:nparticles, 1:(nsteps-fin)))
 ppxs = 0.0d0
 allocate(ppys(1:nparticles, 1:(nsteps-fin)))
 ppys = 0.0d0
+allocate(JJix_s(1:(nsteps-fin)))
+JJix_s = 0.0d0
+allocate(JJiy_s(1:(nsteps-fin)))
+JJiy_s = 0.0d0
 allocate(xx2s(1:nparticles, 1:nssteps))
 xx2s = 0.0d0
 allocate(yy2s(1:nparticles, 1:nssteps))
@@ -58,6 +62,10 @@ allocate(fy1(1:nparticles,1:nparticles))
 fy1 = 0.0d0
 allocate(fy2(1:nparticles,1:nparticles))
 fy2 = 0.0d0
+allocate(invD1(1:nparticles,1:nparticles))
+invD1 = 0.0d0
+allocate(invD2(1:nparticles,1:nparticles))
+invD2 = 0.0d0
 allocate(fx(1:nparticles))
 fx = 0.0d0
 allocate(fy(1:nparticles))
@@ -95,14 +103,7 @@ stermsCx = 0.0d0
 allocate(stermsCy(1:nparticles))
 stermsCy = 0.0d0
 
-allocate(xx_av(1:nparticles, 1:(nsteps-fin)))
-xx_av = 0.0d0
-allocate(yy_av(1:nparticles, 1:(nsteps-fin)))
-yy_av = 0.0d0
-allocate(ppx_av(1:nparticles, 1:(nsteps-fin)))
-ppx_av = 0.0d0
-allocate(ppy_av(1:nparticles, 1:(nsteps-fin)))
-ppy_av = 0.0d0
+
 allocate(xx2_av(1:nparticles, 1:nssteps))
 xx2_av = 0.0d0
 allocate(yy2_av(1:nparticles, 1:nssteps))
@@ -116,14 +117,6 @@ xpx_av = 0.0d0
 allocate(ypy_av(1:nparticles, 1:nssteps))
 ypy_av = 0.0d0
 
-allocate(xx_avo(1:nparticles, 1:(nsteps-fin)))
-xx_avo = 0.0d0
-allocate(yy_avo(1:nparticles, 1:(nsteps-fin)))
-yy_avo = 0.0d0
-allocate(ppx_avo(1:nparticles, 1:(nsteps-fin)))
-ppx_avo = 0.0d0
-allocate(ppy_avo(1:nparticles, 1:(nsteps-fin)))
-ppy_avo = 0.0d0
 allocate(xx2_avo(1:nparticles, 1:nssteps))
 xx2_avo = 0.0d0
 allocate(yy2_avo(1:nparticles, 1:nssteps))
@@ -138,14 +131,6 @@ allocate(ypy_avo(1:nparticles, 1:nssteps))
 ypy_avo = 0.0d0
 
 
-allocate(xx_avt(1:nparticles, 1:(nsteps-fin)))
-xx_avt = 0.0d0
-allocate(yy_avt(1:nparticles, 1:(nsteps-fin)))
-yy_avt = 0.0d0
-allocate(ppx_avt(1:nparticles, 1:(nsteps-fin)))
-ppx_avt = 0.0d0
-allocate(ppy_avt(1:nparticles, 1:(nsteps-fin)))
-ppy_avt = 0.0d0
 allocate(xx2_avt(1:nparticles, 1:nssteps))
 xx2_avt = 0.0d0
 allocate(yy2_avt(1:nparticles, 1:nssteps))
@@ -158,3 +143,20 @@ allocate(xpx_avt(1:nparticles, 1:nssteps))
 xpx_avt = 0.0d0
 allocate(ypy_avt(1:nparticles, 1:nssteps))
 ypy_avt = 0.0d0
+
+allocate(energy(1:nparticles))
+energy = 0.0d0
+allocate(hc(1:nparticles,1:nparticles))
+energy = 0.0d0
+allocate(hfx(1:(nssteps)))
+hfx = 0.0d0
+allocate(hfy(1:(nssteps)))
+hfy = 0.0d0
+allocate(hfx_av(1:(nssteps)))
+hfx_av = 0.0d0
+allocate(hfy_av(1:(nssteps)))
+hfy_av = 0.0d0
+allocate(hfx_avt(1:(nssteps)))
+hfx_avt = 0.0d0
+allocate(hfy_avt(1:(nssteps)))
+hfy_avt = 0.0d0
