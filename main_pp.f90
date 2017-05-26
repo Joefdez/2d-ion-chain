@@ -168,7 +168,7 @@ program twoDChain
     yys = 0.0d0
     ppxold = 0.0d0
     ppyold = 0.0d0
-    ll = 1
+    ll = 0
     mm = 1
     do ii=1, nsteps, 1
       call coulombM(nparticles, xxold, yyold, fx1, fy1, invD1)
@@ -200,14 +200,13 @@ program twoDChain
       ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsBx*dOmx !+ stermsCx*dOmxc
       ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy !+ stermsCy*dOmyc
       if( mod(ii,save_freq) .eq. 0) then
+        ll = ll + 1
         xx2s(:,ll)  = xxnew*xxnew
         yy2s(:,ll)  = yynew*yynew
         ppx2s(:,ll) = ppxnew*ppxnew
         ppy2s(:,ll) = ppynew*ppynew
         xpxs(:,ll)  = xxnew*ppxnew
         ypys(:,ll)  = yynew*ppynew
-        ll = ll + 1
-
       end if
       if( ii .ge. fin) then
         xxs(:,mm)   = xxnew
