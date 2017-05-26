@@ -148,15 +148,24 @@ allocate(energy(1:nparticles))
 energy = 0.0d0
 allocate(hc(1:nparticles,1:nparticles))
 energy = 0.0d0
-allocate(hfx(1:(nssteps)))
-hfx = 0.0d0
-allocate(hfy(1:(nssteps)))
-hfy = 0.0d0
-allocate(hfx_av(1:(nssteps)))
-hfx_av = 0.0d0
-allocate(hfy_av(1:(nssteps)))
-hfy_av = 0.0d0
-allocate(hfx_avt(1:(nssteps)))
-hfx_avt = 0.0d0
-allocate(hfy_avt(1:(nssteps)))
-hfy_avt = 0.0d0
+allocate(hcx(1:(nssteps)))
+hcx = 0.0d0
+allocate(hcy(1:(nssteps)))
+hcy = 0.0d0
+allocate(hcx_av(1:(nssteps)))
+hcx_av = 0.0d0
+allocate(hcy_av(1:(nssteps)))
+hcy_av = 0.0d0
+allocate(hcx_avt(1:(nssteps)))
+hcx_avt = 0.0d0
+allocate(hcy_avt(1:(nssteps)))
+hcy_avt = 0.0d0
+
+allocate(xx_av(1:nparticles,(nsteps-fin)))
+allocate(yy_av(1:nparticles,(nsteps-fin)))
+allocate(xx_avt(1:nparticles,(nsteps-fin)))
+allocate(yy_avt(1:nparticles,(nsteps-fin)))
+xx_av = 0.0d0
+yy_av = 0.0d0
+xx_avt = 0.0d0
+yy_avt = 0.0d0

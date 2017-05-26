@@ -52,9 +52,10 @@ program twoDChain
   real(kind=8), dimension(:), allocatable               :: energy
   real(kind=8)                                          :: JJix, JJiy, JJix_av, JJiy_av
   real(kind=8), dimension(:), allocatable               :: JJix_s, JJiy_s
-  real(kind=8), dimension(:), allocatable               :: hfx, hfy, hfx_av, hfy_av, hfx_avt, hfy_avt
-  real(kind=8), dimension(:,:), allocatable               :: hc
+  real(kind=8), dimension(:), allocatable               :: hcx, hcy, hcx_av, hcy_av, hcx_avt, hcy_avt
+  real(kind=8), dimension(:,:), allocatable              :: hc
   real(kind=8), dimension(:,:), allocatable             :: invD1, invD2
+
   ! mpi variables
   integer :: rank, procs, status(MPI_STATUS_SIZE), alloc_err, source, ierr
   call MPI_INIT(ierr)                                                                               ! Neccesary mpi initialization calls
@@ -193,14 +194,17 @@ program twoDChain
         fy(jj) = sum(fy2(jj,:), 1)
       end do
       call vecA(xxi, yyi, ppxi, ppyi, fx, fy, alpha, aeta1, aeta2, aetaC, nbath, nparticles, Axxi, Ayyi, Apxi, Apyi)
-      !call vecB_edges(dst, nparticles, dOmx, dOmy)
-      !call vecB_cool(dst, nparticles, dOmxc, dOmyc)
       xxnew   = xxold + 0.5d0*(Axx + Axxi)*dt
       yynew   = yyold + 0.5d0*(Ayy + Ayyi)*dt
       ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsBx*dOmx !+ stermsCx*dOmxc
       ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy !+ stermsCy*dOmyc
       if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
+        call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
+        call heat_current(nparticles, fx1, fx2, ppxold, ppyold, hc)
+        call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
+        hcx(ll) = JJix
+        hcy(ll) = JJiy
         xx2s(:,ll)  = xxnew*xxnew
         yy2s(:,ll)  = yynew*yynew
         ppx2s(:,ll) = ppxnew*ppxnew
@@ -208,22 +212,36 @@ program twoDChain
         xpxs(:,ll)  = xxnew*ppxnew
         ypys(:,ll)  = yynew*ppynew
       end if
-      if( ii .ge. fin) then
-        xxs(:,mm)   = xxnew
-        yys(:,mm)   = yynew
-        !ppxs(:,mm)  = ppxnew
-        !ppys(:,mm)  = ppynew
-        mm = mm + 1
+      if(rank .eq. 0 .and. kk .eq. 1) then
+        if( ii .ge. fin) then
+          xxs(:,mm)   = xxnew
+          yys(:,mm)   = yynew
+          mm = mm + 1
+        end if
       end if
       xxold   = xxnew
       yyold   = yynew
       ppxold  = ppxnew
       ppyold  = ppynew
     end do
-    !xx_av  = (xx_av + xxs)
-    !yy_av  = (yy_av + yys)
-    !ppx_av = (ppx_av + ppxs)
-    !ppy_av = (ppy_av + ppys)
+    xx2s(:,nssteps)  = xxnew*xxnew
+    yy2s(:,nssteps)  = yynew*yynew
+    ppx2s(:,nssteps) = ppxnew*ppxnew
+    ppy2s(:,nssteps) = ppynew*ppynew
+    xpxs(:,nssteps)  = xxnew*ppxnew
+    ypys(:,nssteps)  = yynew*ppynew
+    if(rank .eq. 0 .and. kk .eq. 1) then
+      open(unit=11, file="posX.dat")
+      open(unit=12, file="posY.dat")
+      print*, "Printing steady-state spatial distribution of "
+      do jj=1, nparticles, 1
+        write(11,*) xxs(jj,:)
+        write(12,*) yys(jj,:)
+      end do
+      close(unit=11)
+      close(unit=12)
+    end if
+    hcx_av  = hcx_av + hcx
     xx2_av  = (xx2_av + xx2s)
     yy2_av  = (yy2_av + yy2s)
     ppx2_av = (ppx2_av + ppx2s)
@@ -232,47 +250,34 @@ program twoDChain
     ypy_av  = (ypy_av + ypys)
     if( ( mod(kk,5) .eq. 0) .and. (kk .lt. int(traj/procs) ) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
-     !call mpi_reduce(xx_av , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     !call mpi_reduce(yy_av , yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(hcx_av, hcx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(hcy_av, hcy_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     !call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     !call mpi_reduce(ppy_av, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ypy_av, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(kk, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
-
-      if(rank .eq. 0) then
-      ! xx_avt   = xx_avt/traj!*char_length/traj
-       !yy_avt   = yy_avt/traj!*char_length/traj
-       xx2_avt  = xx2_avt*char_length*char_length/traj
-       yy2_avt  = yy2_avt*char_length*char_length/traj
-       !ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
-       !ppy_avt  = ppy_avt*char_length*mass*long_freq/traj
-       ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
-       ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
-       xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
-       ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
-       open(unit=11, file="posX.dat")
-       open(unit=12, file="posY.dat")
-       open(unit=13, file="temperatures.dat")
-       do jj=1, nparticles
-        !write(11,*) xx_avt(jj,:)
-        !write(12,*) yy_avt(jj,:)
-        write(13,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
-       end do
-       close(unit=11)
-       close(unit=12)
-       close(unit=13)
+     if(rank .eq. 0) then
+      xx2_avt  = xx2_avt*char_length*char_length/traj
+      yy2_avt  = yy2_avt*char_length*char_length/traj
+      ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
+      ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
+      xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
+      ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
+      open(unit=11, file="heatflux.dat")
+      open(unit=12, file="temperatures.dat")
+      write(11,*) hcx_avt
+      write(11,*) hcy_avt
+      do jj=1, nparticles
+       write(12,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
+      end do
+      close(unit=11)
+      close(unit=12)
      end if
-     !xx_avt   = 0.0d0
-     !yy_avt   = 0.0d0
      xx2_avt  = 0.0d0
      yy2_avt  = 0.0d0
-     !ppx_avt  = 0.0d0
-     !ppy_avt  = 0.0d0
      ppx2_avt = 0.0d0
      ppy2_avt = 0.0d0
      xpx_avt  = 0.0d0
@@ -281,12 +286,10 @@ program twoDChain
   end do
   print*,"Proc ", rank, " finished integrating"
   call mpi_barrier(mpi_comm_world, ierr)
-  !call mpi_reduce(xx_av , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  !call mpi_reduce(yy_av, yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(hcx_av, hcx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(hcy_av, hcy_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  !call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  !call mpi_reduce(ppy_av, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -298,39 +301,28 @@ program twoDChain
 
   if(rank .eq. 0) then
     seconds = mpi_wtime() - seconds
-
     print*, "total integration + partial writing time:", seconds, seconds/3600.0d0
     print*,traj
-    !call date_and_time(values=time)
-    !print*, "Integration completed at " ,time(5:)
-    !xx_avt   = xx_avt/traj!*char_length/traj
-    !yy_avt   = yy_avt/traj!*char_length/traj
     xx2_avt  = xx2_avt*char_length*char_length/traj
     yy2_avt  = yy2_avt*char_length*char_length/traj
-    !ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
-    !ppy_avt  = ppy_avt*char_length*mass*long_freq/traj
     ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
     ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
     xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
     ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
-    open(unit=11, file="posX.dat")
-    open(unit=12, file="posY.dat")
-    open(unit=13, file="temperatures.dat")
+    open(unit=11, file="heatflux.dat")
+    open(unit=12, file="temperatures.dat")
+    write(11,*) hcx_avt
+    write(11,*) hcy_avt
     do jj=1, nparticles
-     !write(11,*) xx_avt(jj,:)
-     !write(12,*) yy_avt(jj,:)
-     write(13,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
+     write(12,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
     end do
     close(unit=11)
     close(unit=12)
-    close(unit=13)
     print*, "Writing FINAL results to files after ", traj , "trajectories."
     seconds1 = mpi_wtime() - seconds1
     print*, "integration + message + write time:", seconds1
-
   end if
-    ! back to physical units
-  print*, mm
+
   call mpi_finalize(ierr)
 
 

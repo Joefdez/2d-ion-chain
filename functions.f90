@@ -169,7 +169,7 @@ module support_functions_twod
 
     do nn=1, nparticles-1, 1
       JJintx = JJintx + energy(nn)*ppx(nn)
-      JJinty = JJintx + energy(nn)*ppY(nn)
+      JJinty = JJintx + energy(nn)*ppy(nn)
       do ll=1, nn, 1
         !JJ0 = 0.5d0*(ppx(nn+1)+ppx(ll))*cfx(nn+1,ll) + 0.5d0*(ppy(nn+1)+ppy(ll))*cfy(nn+1,ll)
         JJintx = JJintx + (xx(nn)-xx(ll))*hc(nn+1,ll)
