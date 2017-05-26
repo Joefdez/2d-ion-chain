@@ -259,6 +259,7 @@ program twoDChain
      call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ypy_av, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(kk, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
+     print*, "Finished writing up to", kk
      if(rank .eq. 0) then
       xx2_avt  = xx2_avt*char_length*char_length/traj
       yy2_avt  = yy2_avt*char_length*char_length/traj
