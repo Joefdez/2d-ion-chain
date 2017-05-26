@@ -170,6 +170,10 @@ program twoDChain
     ppyold = 0.0d0
     ll = 0
     mm = 1
+    JJix = 0.0d0
+    JJiy = 0.0d0
+    JJix_av  = 0.0d0
+    JJiy_av = 0.0d0
     do ii=1, nsteps, 1
       call coulombM(nparticles, xxold, yyold, fx1, fy1, invD1)
       fx = 0.0d0
