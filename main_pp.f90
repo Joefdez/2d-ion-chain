@@ -159,7 +159,7 @@ program twoDChain
   call mpi_barrier(mpi_comm_world, ierr)
   call mpi_bcast(xx0, nparticles, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(yy0, nparticles, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
-
+  call sleep(proc) ! Delay for getting different seeds
   do kk=1, local_traj, 1
     print*, "Proc.", rank, "on trajectory", kk
     call icpgen(nparticles, 0.02d0, xx0, yy0, xxold, yyold)
