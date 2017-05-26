@@ -259,8 +259,8 @@ program twoDChain
        open(unit=12, file="posY.dat")
        open(unit=13, file="temperatures.dat")
        do jj=1, nparticles
-        write(11,*) xx_avt(jj,:)
-        write(12,*) yy_avt(jj,:)
+        !write(11,*) xx_avt(jj,:)
+        !write(12,*) yy_avt(jj,:)
         write(13,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
        end do
        close(unit=11)
