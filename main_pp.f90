@@ -25,7 +25,6 @@ program twoDChain
   real(kind=8), dimension(:,:), allocatable             :: xx2_avo, yy2_avo, ppx2_avo, ppy2_avo
   real(kind=8), dimension(:,:), allocatable             :: xPx_av, yPy_av
   real(kind=8), dimension(:,:), allocatable             :: xPx_avo, yPy_avo
-  real(kind=8), dimension(:,:), allocatable             :: xPx_av, yPy_av
   real(kind=8), dimension(:), allocatable               :: xxi, yyi, ppxi, ppyi
   real(kind=8), dimension(:,:), allocatable             :: fx1, fy1, fx2, fy2
   real(kind=8), dimension(:), allocatable               :: fx, fy
@@ -54,6 +53,8 @@ program twoDChain
   real(kind=8)                                          :: JJix, JJiy, JJix_av, JJiy_av
   real(kind=8), dimension(:), allocatable               :: JJix_s, JJiy_s
   real(kind=8), dimension(:), allocatable               :: hfx, hfy, hfx_av, hfy_av, hfx_avt, hfy_avt
+  real(kind=8), dimension(:,:), allocatable               :: hc
+  real(kind=8), dimension(:,:), allocatable             :: invD1, invD2
   ! mpi variables
   integer :: rank, procs, status(MPI_STATUS_SIZE), alloc_err, source, ierr
   call MPI_INIT(ierr)                                                                               ! Neccesary mpi initialization calls
