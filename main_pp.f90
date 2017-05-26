@@ -50,11 +50,12 @@ program twoDChain
   integer                                               :: ii,jj, kk, ll, mm
   real(kind=8)                                          :: seconds, seconds1
   real(kind=8), dimension(:), allocatable               :: energy
-  real(kind=8)                                          :: JJix, JJiy, JJix_av, JJiy_av
+  real(kind=8)                                          :: JJix, JJiy
   real(kind=8), dimension(:), allocatable               :: JJix_s, JJiy_s
   real(kind=8), dimension(:), allocatable               :: hcx, hcy, hcx_av, hcy_av, hcx_avt, hcy_avt
-  real(kind=8), dimension(:,:), allocatable              :: hc
+  real(kind=8), dimension(:,:), allocatable             :: hc
   real(kind=8), dimension(:,:), allocatable             :: invD1, invD2
+  real(kind=8)                                          :: JJix_av, JJiy_av, JJix_avt,JJiy_avt
 
   ! mpi variables
   integer :: rank, procs, status(MPI_STATUS_SIZE), alloc_err, source, ierr
@@ -169,7 +170,7 @@ program twoDChain
     ppyold = 0.0d0
     ll = 0
     mm = 1
-    do ii=1, nsteps-1, 1
+    do ii=1, nsteps, 1
       call coulombM(nparticles, xxold, yyold, fx1, fy1, invD1)
       fx = 0.0d0
       fy = 0.0d0
@@ -198,11 +199,6 @@ program twoDChain
       ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy !+ stermsCy*dOmyc
       if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
-        call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
-        call heat_current(nparticles, fx1, fx2, ppxold, ppyold, hc)
-        call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
-        hcx(ll) = JJix
-        hcy(ll) = JJiy
         xx2s(:,ll)  = xxnew*xxnew
         yy2s(:,ll)  = yynew*yynew
         ppx2s(:,ll) = ppxnew*ppxnew
@@ -210,12 +206,15 @@ program twoDChain
         xpxs(:,ll)  = xxnew*ppxnew
         ypys(:,ll)  = yynew*ppynew
       end if
-      if(rank .eq. 0 .and. kk .eq. 1) then
-        if( ii .ge. fin) then
+      if( ii .gt. fin) then
           xxs(:,mm)   = xxnew
           yys(:,mm)   = yynew
+          call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
+          call heat_current(nparticles, fx1, fx2, ppxold, ppyold, hc)
+          call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
+          JJix_av = JJix_av + JJix/(nsteps-fin)
+          JJiy_av = JJiy_av + JJiy/(nsteps-fin)
           mm = mm + 1
-        end if
       end if
       xxold   = xxnew
       yyold   = yynew
@@ -239,7 +238,6 @@ program twoDChain
       close(unit=11)
       close(unit=12)
     end if
-    hcx_av  = hcx_av + hcx
     xx2_av  = (xx2_av + xx2s)
     yy2_av  = (yy2_av + yy2s)
     ppx2_av = (ppx2_av + ppx2s)
@@ -248,7 +246,8 @@ program twoDChain
     ypy_av  = (ypy_av + ypys)
     if( ( mod(kk,5) .eq. 0) .and. (kk .lt. local_traj) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
-     call mpi_reduce(hcx_av, hcx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(hcy_av, hcy_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -267,8 +266,8 @@ program twoDChain
       ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
       open(unit=11, file="heatflux.dat")
       open(unit=12, file="temperatures.dat")
-      write(11,*) hcx_avt
-      write(11,*) hcy_avt
+      write(11,*) JJix_avt/traj
+      write(11,*) JJiy_avt/traj
       do jj=1, nparticles
        write(12,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
       end do
@@ -285,8 +284,8 @@ program twoDChain
   end do
   print*,"Proc ", rank, " finished integrating"
   call mpi_barrier(mpi_comm_world, ierr)
-  call mpi_reduce(hcx_av, hcx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(hcy_av, hcy_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -310,8 +309,8 @@ program twoDChain
     ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
     open(unit=11, file="heatflux.dat")
     open(unit=12, file="temperatures.dat")
-    write(11,*) hcx_avt
-    write(11,*) hcy_avt
+    write(11,*) JJix_avt/traj
+    write(11,*) JJiy_avt/traj
     do jj=1, nparticles
      write(12,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
     end do
