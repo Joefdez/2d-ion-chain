@@ -129,9 +129,9 @@ module support_functions_twod
 
     ! Add kinetic energy contribution and harmonic potential energy contributions
     energy(1:nparticles) = 0.5*ppx(1:nparticles)*ppx(1:nparticles) + 0.5d0*ppx(1:nparticles)*ppx(1:nparticles) &
-              + 0.5d0*xx(1:nparticles)*xx(1:nparticles) + 0.5d0*alpha*yy(1:nparticles)*yy(1:nparticles)
+              + 0.5d0*xx(1:nparticles)*xx(1:nparticles) + 0.5d0*alpha*alpha*yy(1:nparticles)*yy(1:nparticles)
     do ii=1, nparticles, 1
-      energy(ii) = energy(ii) + sum(invD(ii,:), 1)          ! Add the coulomb potential contribution
+      energy(ii) = energy(ii) + 0.5d0*sum(invD(ii,:), 1)          ! Add the coulomb potential contribution
     end do
 
   end subroutine local_energy
