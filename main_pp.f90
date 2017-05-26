@@ -248,7 +248,7 @@ program twoDChain
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
      call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(hcy_av, hcy_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     !call mpi_reduce(hcy_av, hcy_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
