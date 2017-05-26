@@ -87,7 +87,7 @@ program twoDChain
   nsteps=int(tt/dt)
   char_length = ((charge*charge/(4.0d0*pi*ep0))/(mass*long_freq*long_freq))**(1.0/3.0)
   nssteps = int(nsteps/save_freq)  ! Not saving every single timestep saves memory. Must ask about this
-  fin = 0.8*nsteps
+  fin = 0.8d0*nsteps
   print*, rank, nsteps, fin, nsteps-fin
   print*, rank, mass, charge, dt, dst
 
@@ -170,7 +170,7 @@ program twoDChain
     ppyold = 0.0d0
     ll = 0
     mm = 1
-    do ii=1, nsteps, 1
+    do ii=1, nsteps-1, 1
       call coulombM(nparticles, xxold, yyold, fx1, fy1, invD1)
       fx = 0.0d0
       fy = 0.0d0
@@ -211,8 +211,8 @@ program twoDChain
       if( ii .ge. fin) then
         xxs(:,mm)   = xxnew
         yys(:,mm)   = yynew
-        ppxs(:,mm)  = ppxnew
-        ppys(:,mm)  = ppynew
+        !ppxs(:,mm)  = ppxnew
+        !ppys(:,mm)  = ppynew
         mm = mm + 1
       end if
       xxold   = xxnew
@@ -222,8 +222,8 @@ program twoDChain
     end do
     xx_av  = (xx_av + xxs)
     yy_av  = (yy_av + yys)
-    ppx_av = (ppx_av + ppxs)
-    ppy_av = (ppy_av + ppys)
+    !ppx_av = (ppx_av + ppxs)
+    !ppy_av = (ppy_av + ppys)
     xx2_av  = (xx2_av + xx2s)
     yy2_av  = (yy2_av + yy2s)
     ppx2_av = (ppx2_av + ppx2s)
@@ -236,8 +236,8 @@ program twoDChain
      call mpi_reduce(yy_av , yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppy_av, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     !call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     !call mpi_reduce(ppy_av, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -249,8 +249,8 @@ program twoDChain
        yy_avt   = yy_avt/traj!*char_length/traj
        xx2_avt  = xx2_avt*char_length*char_length/traj
        yy2_avt  = yy2_avt*char_length*char_length/traj
-       ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
-       ppy_avt  = ppy_avt*char_length*mass*long_freq/traj
+       !ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
+       !ppy_avt  = ppy_avt*char_length*mass*long_freq/traj
        ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
        ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
        xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
@@ -271,8 +271,8 @@ program twoDChain
      yy_avt   = 0.0d0
      xx2_avt  = 0.0d0
      yy2_avt  = 0.0d0
-     ppx_avt  = 0.0d0
-     ppy_avt  = 0.0d0
+     !ppx_avt  = 0.0d0
+     !ppy_avt  = 0.0d0
      ppx2_avt = 0.0d0
      ppy2_avt = 0.0d0
      xpx_avt  = 0.0d0
@@ -285,8 +285,8 @@ program twoDChain
   call mpi_reduce(yy_av, yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppy_av, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(ppy_av, ppy_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -307,8 +307,8 @@ program twoDChain
     yy_avt   = yy_avt/traj!*char_length/traj
     xx2_avt  = xx2_avt*char_length*char_length/traj
     yy2_avt  = yy2_avt*char_length*char_length/traj
-    ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
-    ppy_avt  = ppy_avt*char_length*mass*long_freq/traj
+    !ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
+    !ppy_avt  = ppy_avt*char_length*mass*long_freq/traj
     ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
     ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
     xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
