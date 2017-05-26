@@ -89,8 +89,6 @@ program twoDChain
   char_length = ((charge*charge/(4.0d0*pi*ep0))/(mass*long_freq*long_freq))**(1.0/3.0)
   nssteps = int(nsteps/save_freq)  ! Not saving every single timestep saves memory. Must ask about this
   fin = 0.8d0*nsteps
-  print*, rank, nsteps, fin, nsteps-fin
-  print*, rank, mass, charge, dt, dst
 
   if(rank .eq. 0) then
     print*, "Reading laser parameters"
@@ -248,7 +246,7 @@ program twoDChain
     ppy2_av = (ppy2_av + ppy2s)
     xpx_av  = (xpx_av + xpxs)
     ypy_av  = (ypy_av + ypys)
-    if( ( mod(kk,5) .eq. 0) .and. (kk .lt. int(traj/procs) ) ) then
+    if( ( mod(kk,5) .eq. 0) .and. (kk .lt. local_traj) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
      call mpi_reduce(hcx_av, hcx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(hcy_av, hcy_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
