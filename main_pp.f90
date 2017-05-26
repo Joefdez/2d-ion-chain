@@ -220,8 +220,8 @@ program twoDChain
       ppxold  = ppxnew
       ppyold  = ppynew
     end do
-    xx_av  = (xx_av + xxs)
-    yy_av  = (yy_av + yys)
+    !xx_av  = (xx_av + xxs)
+    !yy_av  = (yy_av + yys)
     !ppx_av = (ppx_av + ppxs)
     !ppy_av = (ppy_av + ppys)
     xx2_av  = (xx2_av + xx2s)
@@ -232,8 +232,8 @@ program twoDChain
     ypy_av  = (ypy_av + ypys)
     if( ( mod(kk,5) .eq. 0) .and. (kk .lt. int(traj/procs) ) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
-     call mpi_reduce(xx_av , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(yy_av , yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     !call mpi_reduce(xx_av , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     !call mpi_reduce(yy_av , yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      !call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -245,8 +245,8 @@ program twoDChain
      call mpi_reduce(kk, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
 
       if(rank .eq. 0) then
-       xx_avt   = xx_avt/traj!*char_length/traj
-       yy_avt   = yy_avt/traj!*char_length/traj
+      ! xx_avt   = xx_avt/traj!*char_length/traj
+       !yy_avt   = yy_avt/traj!*char_length/traj
        xx2_avt  = xx2_avt*char_length*char_length/traj
        yy2_avt  = yy2_avt*char_length*char_length/traj
        !ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
@@ -267,8 +267,8 @@ program twoDChain
        close(unit=12)
        close(unit=13)
      end if
-     xx_avt   = 0.0d0
-     yy_avt   = 0.0d0
+     !xx_avt   = 0.0d0
+     !yy_avt   = 0.0d0
      xx2_avt  = 0.0d0
      yy2_avt  = 0.0d0
      !ppx_avt  = 0.0d0
@@ -281,8 +281,8 @@ program twoDChain
   end do
   print*,"Proc ", rank, " finished integrating"
   call mpi_barrier(mpi_comm_world, ierr)
-  call mpi_reduce(xx_av , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yy_av, yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(xx_av , xx_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(yy_av, yy_avt , nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   !call mpi_reduce(ppx_av, ppx_avt, nparticles*(nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -303,8 +303,8 @@ program twoDChain
     print*,traj
     !call date_and_time(values=time)
     !print*, "Integration completed at " ,time(5:)
-    xx_avt   = xx_avt/traj!*char_length/traj
-    yy_avt   = yy_avt/traj!*char_length/traj
+    !xx_avt   = xx_avt/traj!*char_length/traj
+    !yy_avt   = yy_avt/traj!*char_length/traj
     xx2_avt  = xx2_avt*char_length*char_length/traj
     yy2_avt  = yy2_avt*char_length*char_length/traj
     !ppx_avt  = ppx_avt*char_length*mass*long_freq/traj
@@ -317,8 +317,8 @@ program twoDChain
     open(unit=12, file="posY.dat")
     open(unit=13, file="temperatures.dat")
     do jj=1, nparticles
-     write(11,*) xx_avt(jj,:)
-     write(12,*) yy_avt(jj,:)
+     !write(11,*) xx_avt(jj,:)
+     !write(12,*) yy_avt(jj,:)
      write(13,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
     end do
     close(unit=11)
