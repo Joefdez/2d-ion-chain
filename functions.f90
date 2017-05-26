@@ -128,7 +128,7 @@ module support_functions_twod
     energy = 0.0d0
 
     ! Add kinetic energy contribution and harmonic potential energy contributions
-    energy(1:nparticles) = 0.5*ppx(1:nparticles)*ppx(1:nparticles) + 0.5d0*ppx(1:nparticles)*ppx(1:nparticles) &
+    energy(1:nparticles) = 0.5*ppx(1:nparticles)*ppx(1:nparticles) + 0.5d0*ppy(1:nparticles)*ppy(1:nparticles) &
               + 0.5d0*xx(1:nparticles)*xx(1:nparticles) + 0.5d0*alpha*alpha*yy(1:nparticles)*yy(1:nparticles)
     do ii=1, nparticles, 1
       energy(ii) = energy(ii) + 0.5d0*sum(invD(ii,:), 1)          ! Add the coulomb potential contribution
