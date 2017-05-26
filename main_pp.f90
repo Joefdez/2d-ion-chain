@@ -50,6 +50,10 @@ program twoDChain
   integer                                               :: traj, local_traj, save_freq, rem
   integer                                               :: ii,jj, kk, ll, mm
   real(kind=8)                                          :: seconds, seconds1
+  real(kind=8), dimension(:), allocatable               :: energy
+  real(kind=8)                                          :: JJix, JJiy, JJix_av, JJiy_av
+  real(kind=8), dimension(:), allocatable               :: JJix_s, JJiy_s
+  real(kind=8), dimension(:), allocatable               :: hfx, hfy, hfx_av, hfy_av, hfx_avt, hfy_avt
   ! mpi variables
   integer :: rank, procs, status(MPI_STATUS_SIZE), alloc_err, source, ierr
   call MPI_INIT(ierr)                                                                               ! Neccesary mpi initialization calls
@@ -161,14 +165,12 @@ program twoDChain
     call ranseed()
     xxs = 0.0d0
     yys = 0.0d0
-    xxs(:,1) = xxold
-    yys(:,1) = yyold
     ppxold = 0.0d0
     ppyold = 0.0d0
     ll = 1
     mm = 1
-    do ii=1, nsteps-1, 1
-      call coulombM(nparticles, xxold, yyold, fx1, fy1)
+    do ii=1, nsteps, 1
+      call coulombM(nparticles, xxold, yyold, fx1, fy1, invD1)
       fx = 0.0d0
       fy = 0.0d0
       do jj=1, nparticles, 1
@@ -184,7 +186,7 @@ program twoDChain
       ppyi = ppyold + Apy*dt  + stermsBy*dOmy !+ stermsCy*dOmyc
       fx = 0.0d0
       fy = 0.0d0
-      call coulombM(nparticles, xxi, yyi, fx2, fy2)
+      call coulombM(nparticles, xxi, yyi, fx2, fy2, invD2)
       do jj=1, nparticles, 1
         fx(jj) = sum(fx2(jj,:), 1)
         fy(jj) = sum(fy2(jj,:), 1)
