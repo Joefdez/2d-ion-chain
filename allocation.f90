@@ -169,3 +169,14 @@ xx_av = 0.0d0
 yy_av = 0.0d0
 xx_avt = 0.0d0
 yy_avt = 0.0d0
+
+
+
+! initialization
+
+JJix = 0.0d0
+JJiy = 0.0d0
+JJix_av = 0.0d0
+JJiy_av = 0.0d0
+JJix_avt = 0.0d0
+JJiy_avt = 0.0d0

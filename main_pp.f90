@@ -217,8 +217,8 @@ program twoDChain
           call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
           call heat_current(nparticles, fx1, fx2, ppxold, ppyold, hc)
           call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
-          JJix_av = JJix_av + JJix/(nsteps-fin)
-          JJiy_av = JJiy_av + JJiy/(nsteps-fin)
+          JJix_av = JJix_av + JJix/(nsteps-fin-1)
+          JJiy_av = JJiy_av + JJiy/(nsteps-fin-1)
           mm = mm + 1
       end if
       xxold   = xxnew
