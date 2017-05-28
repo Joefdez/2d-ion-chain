@@ -145,7 +145,7 @@ module support_functions_twod
     integer                                               :: ii, jj
     hc=0.0d0
     do ii=1, nparticles, 1
-      do jj=ii, nparticles, 1
+      do jj=ii+1, nparticles, 1
         hc(ii,jj) = 0.5d0*(ppx(ii)+ppx(jj))*cfx(ii,jj) + 0.5d0*(ppy(ii)+ppy(jj))*cfy(ii,jj)
         hc(jj,ii) = -1.0d0*hc(ii,jj)
       end do
