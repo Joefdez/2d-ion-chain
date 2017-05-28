@@ -280,8 +280,8 @@ program twoDChain
       ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
       xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
       ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
-      errJJix_t = sqrt( errJJix_t/traj - (JJix_av*JJix_av)/(procs*procs) )
-      errJJiy_t = sqrt( errJJiy_t/traj - (JJiy_av*JJiy_av)/(procs*procs) )
+      errJJix_t = sqrt( errJJix_t/traj - (JJix_avt*JJix_avt)/(traj*traj) )
+      errJJiy_t = sqrt( errJJiy_t/traj - (JJiy_avt*JJiy_avt)/(traj*traj) )
       open(unit=11, file="heatflux.dat")
       open(unit=12, file="temperatures.dat")
       write(11,*) JJix_avt/traj, "+/-", errJJix_t
@@ -319,6 +319,8 @@ program twoDChain
   call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ypy_av, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(errJJix, errJJix_t, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(errJJiy, errJJiy_t, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
 
 
@@ -334,8 +336,8 @@ program twoDChain
     ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
     xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
     ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
-    errJJix_t = sqrt( errJJix_t/traj - (JJix_av*JJix_av)/(procs*procs) )
-    errJJiy_t = sqrt( errJJiy_t/traj - (JJiy_av*JJiy_av)/(procs*procs) )
+    errJJix_t = sqrt( errJJix_t/traj - (JJix_avt*JJix_avt)/(traj*traj) )
+    errJJiy_t = sqrt( errJJiy_t/traj - (JJiy_avt*JJiy_avt)/(traj*traj) )
     open(unit=11, file="heatflux.dat")
     open(unit=12, file="temperatures.dat")
     write(11,*) JJix_avt/traj, "+/-", errJJix_t
