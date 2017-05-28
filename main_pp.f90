@@ -47,7 +47,7 @@ program twoDChain
   real(kind=8)                                          :: aetaC, aDC
   integer                                               :: nsteps, savefreq, nssteps, nparticles, nbath, n_elems, fin
   integer                                               :: traj, local_traj, save_freq, rem
-  integer                                               :: ii,jj, kk, ll, mm
+  integer                                               :: ii,jj, kk, ll, mm, nn
   real(kind=8)                                          :: seconds, seconds1
   real(kind=8), dimension(:), allocatable               :: energy
   real(kind=8)                                          :: JJix, JJiy
@@ -56,6 +56,8 @@ program twoDChain
   real(kind=8), dimension(:,:), allocatable             :: hc
   real(kind=8), dimension(:,:), allocatable             :: invD1, invD2
   real(kind=8)                                          :: JJix_av, JJiy_av, JJix_avt,JJiy_avt
+  real(kind=8), dimension(:), allocatable               :: JJix_av_v, JJiy_av_v
+  real(kind=8)                                          :: errJJix, errJJiy, errJJix_t, errJJiy_t
 
   ! mpi variables
   integer :: rank, procs, status(MPI_STATUS_SIZE), alloc_err, source, ierr
@@ -219,6 +221,8 @@ program twoDChain
           call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
           JJix_av = JJix_av + JJix/(nsteps-fin-1)
           JJiy_av = JJiy_av + JJiy/(nsteps-fin-1)
+          JJix_av_v(kk) = JJix_av_v(kk) + JJix/(nsteps-fin-1)
+          JJiy_av_v(kk) = JJiy_av_v(kk) + JJiy/(nsteps-fin-1)
           mm = mm + 1
       end if
       xxold   = xxnew
@@ -251,6 +255,12 @@ program twoDChain
     ypy_av  = (ypy_av + ypys)
     if( ( mod(kk,5) .eq. 0) .and. (kk .lt. local_traj) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
+     do nn=1, kk, 1
+       errJJix = errJJix + (JJix_av_v(kk) - (JJix_av/kk))*(JJix_av_v(kk) - (JJix_av/kk))
+       errJJiy = errJJiy + (JJiy_av_v(kk) - (JJiy_av/kk))*(JJiy_av_v(kk) - (JJiy_av/kk))
+     end do
+     errJJix = errJJix/kk
+     errJJiy = errJJiy/kk
      call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      !call mpi_reduce(hcy_av, hcy_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -260,6 +270,8 @@ program twoDChain
      call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ypy_av, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(errJJix, errJJix_t, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(errJJiy, errJJiy_t, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(kk, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
      print*, "Finished writing up to", kk
      if(rank .eq. 0) then
@@ -269,10 +281,12 @@ program twoDChain
       ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
       xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
       ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
+      errJJix_t = sqrt(errJJix_t)
+      errJJiy_t = sqrt(errJJiy_t)
       open(unit=11, file="heatflux.dat")
       open(unit=12, file="temperatures.dat")
-      write(11,*) JJix_avt/traj
-      write(11,*) JJiy_avt/traj
+      write(11,*) JJix_avt/traj, "+/-", errJJix_t
+      write(11,*) JJiy_avt/traj, "+/-", errJJiy_t
       do jj=1, nparticles
        write(12,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
       end do
