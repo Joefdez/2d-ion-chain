@@ -170,7 +170,10 @@ yy_av = 0.0d0
 xx_avt = 0.0d0
 yy_avt = 0.0d0
 
-
+allocate(JJix_av_v(1:local_traj))
+JJix_av_v = 0.0d0
+allocate(JJiy_av_v(1:local_traj))
+JJiy_av_v = 0.0d0
 
 ! initialization
 
