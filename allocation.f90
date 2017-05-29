@@ -26,18 +26,18 @@ allocate(xxs(1:nparticles, 1:(nsteps-fin)))
 xxs = 0.0d0
 allocate(yys(1:nparticles, 1:(nsteps-fin)))
 yys = 0.0d0
-allocate(ppxs(1:nparticles, 1:(nsteps-fin)))
-ppxs = 0.0d0
-allocate(ppys(1:nparticles, 1:(nsteps-fin)))
-ppys = 0.0d0
-allocate(JJix_s(1:(nsteps-fin)))
-JJix_s = 0.0d0
-allocate(JJiy_s(1:(nsteps-fin)))
-JJiy_s = 0.0d0
-allocate(xx2s(1:nparticles, 1:nssteps))
-xx2s = 0.0d0
-allocate(yy2s(1:nparticles, 1:nssteps))
-yy2s = 0.0d0
+!allocate(ppxs(1:nparticles, 1:(nsteps-fin)))
+!ppxs = 0.0d0
+!allocate(ppys(1:nparticles, 1:(nsteps-fin)))
+!ppys = 0.0d0
+!allocate(JJix_s(1:(nsteps-fin)))
+!JJix_s = 0.0d0
+!allocate(JJiy_s(1:(nsteps-fin)))
+!JJiy_s = 0.0d0
+!allocate(xx2s(1:nparticles, 1:nssteps))
+!xx2s = 0.0d0
+!allocate(yy2s(1:nparticles, 1:nssteps))
+!yy2s = 0.0d0
 allocate(ppx2s(1:nparticles, 1:nssteps))
 ppx2s = 0.0d0
 allocate(ppy2s(1:nparticles, 1:nssteps))
@@ -104,10 +104,10 @@ allocate(stermsCy(1:nparticles))
 stermsCy = 0.0d0
 
 
-allocate(xx2_av(1:nparticles, 1:nssteps))
-xx2_av = 0.0d0
-allocate(yy2_av(1:nparticles, 1:nssteps))
-yy2_av = 0.0d0
+!allocate(xx2_av(1:nparticles, 1:nssteps))
+!xx2_av = 0.0d0
+!allocate(yy2_av(1:nparticles, 1:nssteps))
+!yy2_av = 0.0d0
 allocate(ppx2_av(1:nparticles, 1:nssteps))
 ppx2_av = 0.0d0
 allocate(ppy2_av(1:nparticles, 1:nssteps))
@@ -117,24 +117,24 @@ xpx_av = 0.0d0
 allocate(ypy_av(1:nparticles, 1:nssteps))
 ypy_av = 0.0d0
 
-allocate(xx2_avo(1:nparticles, 1:nssteps))
-xx2_avo = 0.0d0
-allocate(yy2_avo(1:nparticles, 1:nssteps))
-yy2_avo = 0.0d0
-allocate(ppx2_avo(1:nparticles, 1:nssteps))
-ppx2_avo = 0.0d0
-allocate(ppy2_avo(1:nparticles, 1:nssteps))
-ppy2_avo = 0.0d0
-allocate(xpx_avo(1:nparticles, 1:nssteps))
-xpx_avo = 0.0d0
-allocate(ypy_avo(1:nparticles, 1:nssteps))
-ypy_avo = 0.0d0
+!allocate(xx2_avo(1:nparticles, 1:nssteps))
+!xx2_avo = 0.0d0
+!allocate(yy2_avo(1:nparticles, 1:nssteps))
+!yy2_avo = 0.0d0
+!allocate(ppx2_avo(1:nparticles, 1:nssteps))
+!ppx2_avo = 0.0d0
+!allocate(ppy2_avo(1:nparticles, 1:nssteps))
+!ppy2_avo = 0.0d0
+!allocate(xpx_avo(1:nparticles, 1:nssteps))
+!xpx_avo = 0.0d0
+!allocate(ypy_avo(1:nparticles, 1:nssteps))
+!ypy_avo = 0.0d0
 
 
-allocate(xx2_avt(1:nparticles, 1:nssteps))
-xx2_avt = 0.0d0
-allocate(yy2_avt(1:nparticles, 1:nssteps))
-yy2_avt = 0.0d0
+!allocate(xx2_avt(1:nparticles, 1:nssteps))
+!xx2_avt = 0.0d0
+!allocate(yy2_avt(1:nparticles, 1:nssteps))
+!yy2_avt = 0.0d0
 allocate(ppx2_avt(1:nparticles, 1:nssteps))
 ppx2_avt = 0.0d0
 allocate(ppy2_avt(1:nparticles, 1:nssteps))
@@ -148,18 +148,18 @@ allocate(energy(1:nparticles))
 energy = 0.0d0
 allocate(hc(1:nparticles,1:nparticles))
 energy = 0.0d0
-allocate(hcx(1:(nssteps)))
-hcx = 0.0d0
-allocate(hcy(1:(nssteps)))
-hcy = 0.0d0
-allocate(hcx_av(1:(nssteps)))
-hcx_av = 0.0d0
-allocate(hcy_av(1:(nssteps)))
-hcy_av = 0.0d0
-allocate(hcx_avt(1:(nssteps)))
-hcx_avt = 0.0d0
-allocate(hcy_avt(1:(nssteps)))
-hcy_avt = 0.0d0
+!allocate(hcx(1:(nssteps)))
+!hcx = 0.0d0
+!allocate(hcy(1:(nssteps)))
+!hcy = 0.0d0
+!allocate(hcx_av(1:(nssteps)))
+!hcx_av = 0.0d0
+!allocate(hcy_av(1:(nssteps)))
+!hcy_av = 0.0d0
+!allocate(hcx_avt(1:(nssteps)))
+!hcx_avt = 0.0d0
+!allocate(hcy_avt(1:(nssteps)))
+!hcy_avt = 0.0d0
 
 allocate(xx_av(1:nparticles,(nsteps-fin)))
 allocate(yy_av(1:nparticles,(nsteps-fin)))

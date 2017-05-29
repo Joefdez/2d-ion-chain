@@ -9,55 +9,7 @@ program twoDChain
 
   implicit none
 
-  ! variables
-  real(kind=8), dimension(:), allocatable               :: xx0, yy0, px0, py0
-  real(kind=8), dimension(:), allocatable               :: xxold, yyold, ppxold, ppyold
-  real(kind=8), dimension(:), allocatable               :: xxnew, yynew, ppxnew, ppynew
-  real(kind=8), dimension(:,:), allocatable             :: xxs, yys, ppxs, ppys
-  real(kind=8), dimension(:,:), allocatable             :: xx2s, yy2s, ppx2s, ppy2s
-  real(kind=8), dimension(:,:), allocatable             :: xpxs, ypys
-  real(kind=8), dimension(:,:), allocatable             :: xx_avt, yy_avt, ppx_avt, ppy_avt
-  real(kind=8), dimension(:,:), allocatable             :: xx2_avt, yy2_avt, ppx2_avt, ppy2_avt
-  real(kind=8), dimension(:,:), allocatable             :: xpx_avt, ypy_avt
-  real(kind=8), dimension(:,:), allocatable             :: xx_av, yy_av, ppx_av, ppy_av
-  real(kind=8), dimension(:,:), allocatable             :: xx2_av, yy2_av, ppx2_av, ppy2_av
-  real(kind=8), dimension(:,:), allocatable             :: xx_avo, yy_avo, ppx_avo, ppy_avo
-  real(kind=8), dimension(:,:), allocatable             :: xx2_avo, yy2_avo, ppx2_avo, ppy2_avo
-  real(kind=8), dimension(:,:), allocatable             :: xPx_av, yPy_av
-  real(kind=8), dimension(:,:), allocatable             :: xPx_avo, yPy_avo
-  real(kind=8), dimension(:), allocatable               :: xxi, yyi, ppxi, ppyi
-  real(kind=8), dimension(:,:), allocatable             :: fx1, fy1, fx2, fy2
-  real(kind=8), dimension(:), allocatable               :: fx, fy
-  real(kind=8), dimension(:), allocatable               :: Axx, Axxi, Ayy, Ayyi
-  real(kind=8), dimension(:), allocatable               :: Apx, Apxi, Apy, Apyi
-  real(kind=8), dimension(:), allocatable               :: dOmx, dOmy, dOmxc, dOmyc
-  real(kind=8), dimension(:), allocatable               :: stermsBx, stermsCx, stermsBy, stermsCy
-
-  real(kind=8)                                          :: tt, dt, dst, mass, charge, dist
-  real(kind=8)                                          :: alpha, char_length, long_freq
-  real(kind=8)                                          :: del1, del2, delC
-  real(kind=8)                                          :: omega0, omega1, omega2, omegaC
-  real(kind=8)                                          :: I1, I2, IC
-  real(kind=8)                                          :: k1, k2, kC
-  real(kind=8)                                          :: ic_radius
-  real(kind=8)                                          :: Gam
-  real(kind=8)                                          :: eta1, aeta1, eta2, aeta2
-  real(kind=8)                                          :: D1, aD1, D2, aD2
-  real(kind=8)                                          :: etaC, DC
-  real(kind=8)                                          :: aetaC, aDC
-  integer                                               :: nsteps, savefreq, nssteps, nparticles, nbath, n_elems, fin
-  integer                                               :: traj, local_traj, save_freq, rem
-  integer                                               :: ii,jj, kk, ll, mm, nn
-  real(kind=8)                                          :: seconds, seconds1
-  real(kind=8), dimension(:), allocatable               :: energy
-  real(kind=8)                                          :: JJix, JJiy
-  real(kind=8), dimension(:), allocatable               :: JJix_s, JJiy_s
-  real(kind=8), dimension(:), allocatable               :: hcx, hcy, hcx_av, hcy_av, hcx_avt, hcy_avt
-  real(kind=8), dimension(:,:), allocatable             :: hc
-  real(kind=8), dimension(:,:), allocatable             :: invD1, invD2
-  real(kind=8)                                          :: JJix_av, JJiy_av, JJix_avt,JJiy_avt
-  real(kind=8), dimension(:), allocatable               :: JJix_av_v, JJiy_av_v
-  real(kind=8)                                          :: errJJix, errJJiy, errJJix_t, errJJiy_t
+  include "declarations.f90"
 
   ! mpi variables
   integer :: rank, procs, status(MPI_STATUS_SIZE), alloc_err, source, ierr
@@ -206,8 +158,8 @@ program twoDChain
       ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy !+ stermsCy*dOmyc
       if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
-        xx2s(:,ll)  = xxnew*xxnew
-        yy2s(:,ll)  = yynew*yynew
+        !xx2s(:,ll)  = xxnew*xxnew
+        !yy2s(:,ll)  = yynew*yynew
         ppx2s(:,ll) = ppxnew*ppxnew
         ppy2s(:,ll) = ppynew*ppynew
         xpxs(:,ll)  = xxnew*ppxnew
@@ -230,8 +182,8 @@ program twoDChain
       ppxold  = ppxnew
       ppyold  = ppynew
     end do
-    xx2s(:,nssteps)  = xxnew*xxnew
-    yy2s(:,nssteps)  = yynew*yynew
+    !xx2s(:,nssteps)  = xxnew*xxnew
+    !yy2s(:,nssteps)  = yynew*yynew
     ppx2s(:,nssteps) = ppxnew*ppxnew
     ppy2s(:,nssteps) = ppynew*ppynew
     xpxs(:,nssteps)  = xxnew*ppxnew
@@ -247,8 +199,8 @@ program twoDChain
       close(unit=11)
       close(unit=12)
     end if
-    xx2_av  = (xx2_av + xx2s)
-    yy2_av  = (yy2_av + yy2s)
+    !xx2_av  = (xx2_av + xx2s)
+    !yy2_av  = (yy2_av + yy2s)
     ppx2_av = (ppx2_av + ppx2s)
     ppy2_av = (ppy2_av + ppy2s)
     xpx_av  = (xpx_av + xpxs)
@@ -263,8 +215,8 @@ program twoDChain
      end do
      call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     !call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     !call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -274,14 +226,14 @@ program twoDChain
      call mpi_reduce(kk, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
      print*, "Finished writing up to", kk
      if(rank .eq. 0) then
-      xx2_avt  = xx2_avt*char_length*char_length/traj
-      yy2_avt  = yy2_avt*char_length*char_length/traj
+      !xx2_avt  = xx2_avt*char_length*char_length/traj
+      !yy2_avt  = yy2_avt*char_length*char_length/traj
       ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
       ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
       xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
       ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
       errJJix_t = sqrt( errJJix_t/traj - (JJix_avt*JJix_avt)/(traj*traj) )
-      errJJiy_t = sqrt( errJJiy_t/traj - (JJiy_avt*JJiy_avt)/(traj*traj) )
+      errJJiy_t = sqrt( errJJiy_t/traj - (JJiy_avt*JJiy_avt)/(traj) )
       open(unit=11, file="heatflux.dat")
       open(unit=12, file="temperatures.dat")
       write(11,*) JJix_avt/traj, "+/-", errJJix_t
@@ -292,8 +244,8 @@ program twoDChain
       close(unit=11)
       close(unit=12)
      end if
-     xx2_avt  = 0.0d0
-     yy2_avt  = 0.0d0
+     !xx2_avt  = 0.0d0
+     !yy2_avt  = 0.0d0
      ppx2_avt = 0.0d0
      ppy2_avt = 0.0d0
      xpx_avt  = 0.0d0
@@ -308,13 +260,14 @@ program twoDChain
     errJJix = errJJix + JJix_av_v(nn)*JJix_av_v(nn)
     errJJiy = errJJiy + JJiy_av_v(nn)*JJiy_av_v(nn)
   end do
+
   call mpi_barrier(mpi_comm_world, ierr)
   call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -330,8 +283,8 @@ program twoDChain
     seconds = mpi_wtime() - seconds
     print*, "total integration + partial writing time:", seconds, seconds/3600.0d0
     print*,traj
-    xx2_avt  = xx2_avt*char_length*char_length/traj
-    yy2_avt  = yy2_avt*char_length*char_length/traj
+    !xx2_avt  = xx2_avt*char_length*char_length/traj
+    !yy2_avt  = yy2_avt*char_length*char_length/traj
     ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
     ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
     xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
