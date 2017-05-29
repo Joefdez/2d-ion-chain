@@ -210,9 +210,12 @@ program twoDChain
      errJJix = 0.0d0
      errJJiy = 0.0d0
      do nn=1, kk, 1
-       errJJix = errJJix + JJix_av_v(nn)*JJix_av_v(nn)
-       errJJiy = errJJiy + JJiy_av_v(nn)*JJiy_av_v(nn)
+       errJJix = errJJix + (JJix_av_v(nn)-sum(JJix_av_v,1)/(kk))*(JJix_av_v(nn)-sum(JJix_av_v,1)/(kk))
+       errJJiy = errJJiy + (JJiy_av_v(nn)-sum(JJiy_av_v,1)/(kk))*(JJiy_av_v(nn)-sum(JJiy_av_v,1)/(kk))
      end do
+     errJJix = errJJix/kk
+     errJJiy = errJJiy/kk
+
      call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      !call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -232,8 +235,8 @@ program twoDChain
       ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
       xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
       ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
-      errJJix_t = sqrt( errJJix_t/traj - (JJix_avt*JJix_avt)/(traj*traj) )
-      errJJiy_t = sqrt( errJJiy_t/traj - (JJiy_avt*JJiy_avt)/(traj) )
+      errJJix_t = sqrt( errJJix_t/traj)
+      errJJiy_t = sqrt( errJJiy_t/traj)
       open(unit=11, file="heatflux.dat")
       open(unit=12, file="temperatures.dat")
       write(11,*) JJix_avt/traj, "+/-", errJJix_t
