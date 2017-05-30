@@ -235,8 +235,8 @@ program twoDChain
       ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
       xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
       ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
-      errJJix_t = sqrt( errJJix_t/traj)
-      errJJiy_t = sqrt( errJJiy_t/traj)
+      errJJix_t = sqrt( errJJix_t/procs)
+      errJJiy_t = sqrt( errJJiy_t/procs)
       open(unit=11, file="heatflux.dat")
       open(unit=12, file="temperatures.dat")
       write(11,*) JJix_avt/traj, "+/-", errJJix_t
@@ -258,11 +258,12 @@ program twoDChain
   print*,"Proc ", rank, " finished integrating"
   errJJix = 0.0d0
   errJJiy = 0.0d0
-  print*, kk, local_traj
   do nn=1, local_traj, 1
-    errJJix = errJJix + JJix_av_v(nn)*JJix_av_v(nn)
-    errJJiy = errJJiy + JJiy_av_v(nn)*JJiy_av_v(nn)
+    errJJix = errJJix + (JJix_av_v(nn)-sum(JJix_av_v,1)/(local_traj))*(JJix_av_v(nn)-sum(JJix_av_v,1)/(local_traj))
+    errJJiy = errJJiy + (JJiy_av_v(nn)-sum(JJiy_av_v,1)/(local_traj))*(JJiy_av_v(nn)-sum(JJiy_av_v,1)/(local_traj))
   end do
+  errJJix = errJJix/local_traj
+  errJJiy = errJJiy/local_traj
 
   call mpi_barrier(mpi_comm_world, ierr)
   call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -286,6 +287,9 @@ program twoDChain
     seconds = mpi_wtime() - seconds
     print*, "total integration + partial writing time:", seconds, seconds/3600.0d0
     print*,traj
+
+    errJJix_t = sqrt( errJJix_t/procs)
+    errJJiy_t = sqrt( errJJiy_t/procs)
     !xx2_avt  = xx2_avt*char_length*char_length/traj
     !yy2_avt  = yy2_avt*char_length*char_length/traj
     ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in mK
