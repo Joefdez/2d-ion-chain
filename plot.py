@@ -16,7 +16,7 @@ xxf = zeros([frac*30])
 yyf = zeros([frac*30])
 
 
-print()"Flattenning position arrays to compose bivariate histogram.")
+print("Flattenning position arrays to compose bivariate histogram.")
 for ii in range(0,30):
     xxf[ii*frac:(ii+1)*frac] = xx[ii,-1*frac:]
     yyf[ii*frac:(ii+1)*frac] = yy[ii,-1*frac:]
@@ -58,14 +58,14 @@ print("Calculating temperature profile")
 tf = zeros(30)
 ns = shape(temps)
 ns = 0.2*ns[1]
-for ii in range(30):
-    tf[ii] = mean(temps[ii,-ns:])
+for ii in range(30):       # Temperature in K
+    tf[ii] = mean(temps[ii,-int(ns):])
 
 print("Plotting temperature profile.")
 tb, th = 3.0, 9.0
 txl, txr = -6.0, 6.0
 temp = figure("Temperature")
-axt = temo.add_subplot(111)
-ax.set_xlim([txl, txr])
-ax.set_ylim([tb, th])
-axes.plot(xxs, tf)
+axt = temp.add_subplot(111)
+axt.set_xlim([txl, txr])
+axt.set_ylim([tb, th])
+axt.plot(xxs, 1000*tf) # Plot temperature in mK
