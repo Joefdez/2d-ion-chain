@@ -19,7 +19,7 @@ program twoDChain
 
   if(rank .eq. 0 ) then
     print*, "Reading solution and system parameters"
-    call initialize_system(nparticles, mass, charge, tt, dt, traj, save_freq, long_freq, alpha, ic_radius)
+    call initialize_system(nparticles, mass, charge, tt, dt, traj, save_freq, long_freq, alpha, ic_radius, initT)
   end if
 
   call mpi_bcast(nparticles, 1, mpi_integer, 0, MPI_COMM_WORLD, ierr)
@@ -33,6 +33,7 @@ program twoDChain
   call mpi_bcast(alpha, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(ic_radius, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(long_freq, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
+  call mpi_bcast(initT, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
 
   call mpi_barrier(mpi_comm_world, ierr)
 
@@ -78,6 +79,8 @@ program twoDChain
   D2   = hbar*hbar*k2*k2*I2*(Gam)/(1.0d0 + 4.0d0*del2*del2/(Gam*Gam))
   etaC = -4.0d0*hbar*kC*kC*IC*(2.0d0*delC/Gam)/( (1 + 4.0d0*delC*delC/(Gam*Gam)) * (1 + 4.0d0*delC*delC/(Gam*Gam)) )
   DC   = hbar*hbar*kC*kC*IC*(Gam)/(1.0d0 + 4.0d0*delC*delC/(Gam*Gam))
+  initT = initT * (kb/(char_length*char_length*mass*long_freq*long_freq))
+  initSpeed = sqrt(2*initSpeed)
 
   ! Calculate dimensionless Doppler cooling parameters
   call dimensionless_doppler_values(eta1, D1, mass, long_freq, char_length, aeta1, aD1)
@@ -117,8 +120,6 @@ program twoDChain
 
   do kk=1, local_traj, 1
     print*, "Proc.", rank, "on trajectory", kk
-    call icpgen(nparticles, 0.02d0, xx0, yy0, xxold, yyold)
-    call ranseed()
     xxs = 0.0d0
     yys = 0.0d0
     ppxold = 0.0d0
@@ -127,8 +128,11 @@ program twoDChain
     mm = 1
     JJix = 0.0d0
     JJiy = 0.0d0
-!    JJix_av  = 0.0d0
-!    JJiy_av = 0.0d0
+    call icpgen(nparticles, 0.02d0, xx0, yy0, xxold, yyold)
+    call icmomgen(nparticles, initSpeed, ppxold, ppyold)
+    call ranseed()
+!   JJix_av  = 0.0d0
+!   JJiy_av = 0.0d0
     do ii=1, nsteps, 1
       call coulombM(nparticles, xxold, yyold, fx1, fy1, invD1)
       fx = 0.0d0

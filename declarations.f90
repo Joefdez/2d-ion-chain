@@ -47,3 +47,5 @@ real(kind=8), dimension(:,:), allocatable             :: invD1, invD2
 real(kind=8)                                          :: JJix_av, JJiy_av, JJix_avt,JJiy_avt
 real(kind=8), dimension(:), allocatable               :: JJix_av_v, JJiy_av_v
 real(kind=8)                                          :: errJJix, errJJiy, errJJix_t, errJJiy_t
+
+real(kind=8)                                          :: initT, initSpeed

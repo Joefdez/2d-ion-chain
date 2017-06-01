@@ -7,7 +7,7 @@ module initialization
 
 contains
   ! based on http://jblevins.org/log/control-file
-  subroutine initialize_system(n_particles, mass1, charge1, tt, dt, traj, save_freq, long_freq, alpha, ic_radius)
+  subroutine initialize_system(n_particles, mass1, charge1, tt, dt, traj, save_freq, long_freq, alpha, ic_radius, initT)
 
     implicit none
 
@@ -20,7 +20,7 @@ contains
     integer, intent(inout) :: n_particles   ! dimensionality of the problem, number of partilcles
 
     real(kind=8), intent(inout)  :: mass1, charge1, ic_radius
-    real(kind=8), intent(inout)  :: alpha, long_freq
+    real(kind=8), intent(inout)  :: alpha, long_freq, initT
     real(kind=8), intent(inout)       :: dt, tt
     integer, intent(inout)            :: traj
     integer, intent(inout)            :: save_freq
@@ -58,6 +58,8 @@ contains
               read(buffer,*,iostat=ios) long_freq
           case('save_freq')
               read(buffer,*,iostat=ios) save_freq
+          case('initT')
+              read(buffer,*,iostat=ios) initT
           case default
               print*, "Skipping invalid value."
         end select
