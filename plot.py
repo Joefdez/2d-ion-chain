@@ -60,12 +60,16 @@ ns = shape(temps)
 ns = 0.2*ns[1]
 for ii in range(30):
     tf[ii] = mean(temps[ii,-ns:])
+tf = 1000*tf
 
 print("Plotting temperature profile.")
 tb, th = 3.0, 9.0
 txl, txr = -6.0, 6.0
 temp = figure("Temperature")
 axt = temo.add_subplot(111)
-ax.set_xlim([txl, txr])
-ax.set_ylim([tb, th])
-axes.plot(xxs, tf)
+axt.set_xlim([txl, txr])
+axt.set_ylim([tb, th])
+axt.hspan(xs[0]*0.95, xs[3]*1.05, facecolor='r', alpha=0.5)
+axt.hspan(xs[-3]*0.95, xs[1]*1.05, facecolor='g', alpha=0.5)
+axt.plot(xxs, tf)
+axt.plot(xxs, tf, '.', markersize=8)
