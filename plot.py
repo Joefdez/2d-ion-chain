@@ -66,7 +66,7 @@ print("Plotting temperature profile.")
 tb, th = 3.0, 9.0
 txl, txr = -6.0, 6.0
 temp = figure("Temperature")
-axt = temo.add_subplot(111)
+axt = temp.add_subplot(111)
 axt.set_xlim([txl, txr])
 axt.set_ylim([tb, th])
 axt.hspan(xs[0]*0.95, xs[3]*1.05, facecolor='r', alpha=0.5)
