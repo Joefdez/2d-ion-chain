@@ -16,7 +16,7 @@ xxf = zeros([frac*30])
 yyf = zeros([frac*30])
 
 
-print()"Flattenning position arrays to compose bivariate histogram.")
+print("Flattenning position arrays to compose bivariate histogram.")
 for ii in range(0,30):
     xxf[ii*frac:(ii+1)*frac] = xx[ii,-1*frac:]
     yyf[ii*frac:(ii+1)*frac] = yy[ii,-1*frac:]
@@ -73,3 +73,7 @@ axt.hspan(xs[0]*0.95, xs[3]*1.05, facecolor='r', alpha=0.5)
 axt.hspan(xs[-3]*0.95, xs[1]*1.05, facecolor='g', alpha=0.5)
 axt.plot(xxs, tf)
 axt.plot(xxs, tf, '.', markersize=8)
+axt = temp.add_subplot(111)
+axt.set_xlim([txl, txr])
+axt.set_ylim([tb, th])
+axt.plot(xxs, tf) # Plot temperature in mK
