@@ -3,6 +3,7 @@
 from numpy import *
 from matplotlib.pylab import *
 ion()
+
 #xx = loadtxt("results/posx.dat")
 #yy = loadtxt("results/posy.dat")
 print("Loading ion coordinate files.")
@@ -44,7 +45,8 @@ vals = zeros([nx, ny])
 
 chain = figure("chain")
 axes  = chain.add_subplot(111)
-
+axes.set_xlabel(r'x (scaled units)', fontsize=15)
+axes.set_ylabel(r'y (scaled units)', fontsize=15)
 axes.imshow(H, origin='low',
             extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]])
 
@@ -63,17 +65,47 @@ for ii in range(30):
 tf = 1000*tf
 
 print("Plotting temperature profile.")
-tb, th = 3.0, 9.0
+delT = max(tf)-min(tf)
+tb, th = (min(tf)-0.1*delT), (max(tf)+0.1*delT)  #(min(tf)-0.1*delT), (max(tf)+0.1*delT)
 txl, txr = -6.0, 6.0
 temp = figure("Temperature")
 axt = temp.add_subplot(111)
 axt.set_xlim([txl, txr])
 axt.set_ylim([tb, th])
-axt.hspan(xs[0]*0.95, xs[3]*1.05, facecolor='r', alpha=0.5)
-axt.hspan(xs[-3]*0.95, xs[1]*1.05, facecolor='g', alpha=0.5)
-axt.plot(xxs, tf)
-axt.plot(xxs, tf, '.', markersize=8)
+axt.set_xlabel(r'x (scaled units)', fontsize=15)
+axt.set_ylabel(r'T (mK)', fontsize=15)
+axt.tick_params(labelsize=11)
+axt.axvspan(-6., -4., facecolor='r', alpha=0.75)
+axt.axvspan(4., 6., facecolor='c', alpha=0.75)
+axt.plot(xxs, tf, 'b')
+axt.plot(xxs, tf, 'b.', markersize=11)
 axt = temp.add_subplot(111)
 axt.set_xlim([txl, txr])
 axt.set_ylim([tb, th])
 axt.plot(xxs, tf) # Plot temperature in mK
+
+""" 
+
+print("Making plot with inset")
+
+ins, inax1 = subplots()
+
+left, bottom, width, height = [2 , 5, 5.5, 8]
+inax2 = ins.axes([left, bottom, width, height])
+
+inax1.set_xlim([txl, txr])
+inax1.set_ylim([3, 9])
+inax1.set_xlabel(r'x (scaled units)', fontsize=15)
+inax1.set_ylabel(r'T (mK)', fontsize=15)
+inax1.tick_params(labelsize=11)
+inax1.axvspan(-6., -4., facecolor='r', alpha=0.75)
+inax1.axvspan(4., 6., facecolor='c', alpha=0.75)
+inax1.plot(xxs, tf, 'b')
+inax1.plot(xxs, tf, 'b.', markersize=11)
+inax2.imshow(H, origin='low',
+            extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]])
+
+
+""" 
+
+
