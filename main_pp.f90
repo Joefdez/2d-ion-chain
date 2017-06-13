@@ -209,6 +209,7 @@ program twoDChain
     ppy2_av = (ppy2_av + ppy2s)
     xpx_av  = (xpx_av + xpxs)
     ypy_av  = (ypy_av + ypys)
+    xx_av   = xx_av + xxs
     if( ( mod(kk,5) .eq. 0) .and. (kk .lt. local_traj) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
      errJJix = 0.0d0
@@ -224,6 +225,7 @@ program twoDChain
      call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      !call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      !call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     call mpi_reduce(xx_av, xx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -250,6 +252,11 @@ program twoDChain
       end do
       close(unit=11)
       close(unit=12)
+      open(unit=13, file="posXav.dat")
+      do jj=1, nparticles, 1
+        write(13,*) xx_av/traj
+      end do
+      close(unit=13)
      end if
      !xx2_avt  = 0.0d0
      !yy2_avt  = 0.0d0
@@ -276,6 +283,7 @@ program twoDChain
   call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   !call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   !call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  call mpi_reduce(xx_av, xx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
