@@ -33,7 +33,7 @@ xxs.sort()
 
 an = (max(yys)-min(yys))/(max(xxs)-min(xxs))
 print("Anisotropy parameter:")
-print an
+print max(yys)-min(yys), (max(xxs)-min(xxs)), an
 
 
 print("Composing the bivariate histogram")
