@@ -13,6 +13,7 @@ yy = loadtxt("posY.dat")
 dims = shape(xx)
 frac = int(dims[1])
 xxs = zeros(30)
+yys = zeros(30)
 xxf = zeros([frac*30])
 yyf = zeros([frac*30])
 
@@ -22,9 +23,18 @@ for ii in range(0,30):
     xxf[ii*frac:(ii+1)*frac] = xx[ii,-1*frac:]
     yyf[ii*frac:(ii+1)*frac] = yy[ii,-1*frac:]
     xxs[ii] = mean(xx[ii,:])
+    yys[ii] = mean(yy[ii,:])
 
 del xx
 del yy
+
+xxs.sort()
+
+
+an = (max(yys)-min(yys))/(max(xxs)-min(xxs))
+print("Anisotropy parameter:")
+print an
+
 
 print("Composing the bivariate histogram")
 gauss = 0.001
