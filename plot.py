@@ -76,6 +76,10 @@ tf = 1000*tf
 
 print("Plotting temperature profile.")
 delT = max(tf)-min(tf)
+print("Temperature delta")
+print(delT)
+print("Temperature grad")
+print(delT/(max(xxs)-min(xxs)))
 tb, th = (min(tf)-0.1*delT), (max(tf)+0.1*delT)  #(min(tf)-0.1*delT), (max(tf)+0.1*delT)
 txl, txr = -6.0, 6.0
 temp = figure("Temperature")
@@ -94,7 +98,7 @@ axt.set_xlim([txl, txr])
 axt.set_ylim([tb, th])
 axt.plot(xxs, tf) # Plot temperature in mK
 
-""" 
+"""
 
 print("Making plot with inset")
 
@@ -116,6 +120,4 @@ inax2.imshow(H, origin='low',
             extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]])
 
 
-""" 
-
-
+"""
