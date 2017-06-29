@@ -22,8 +22,8 @@ real(kind=8), dimension(:), allocatable               :: Apx, Apxi, Apy, Apyi
 real(kind=8), dimension(:), allocatable               :: dOmx, dOmy, dOmxc, dOmyc
 real(kind=8), dimension(:), allocatable               :: stermsBx, stermsCx, stermsBy, stermsCy
 
-real(kind=8), dimension(:), allocatable                :: JJix_s, JJix_sav, JJix_savt
-real(kind=8), dimension(:), allocatable                :: JJiy_s, JJiy_sav, JJiy_savt
+!real(kind=8), dimension(:), allocatable                :: JJix_s, JJix_sav, JJix_savt
+!real(kind=8), dimension(:), allocatable                :: JJiy_s, JJiy_sav, JJiy_savt
 
 real(kind=8)                                          :: tt, dt, dst, mass, charge, dist
 real(kind=8)                                          :: alpha, char_length, long_freq

@@ -143,7 +143,8 @@ module support_functions_twod
     real(kind=8), dimension(:), intent(in)                :: ppx, ppy
     real(kind=8), dimension(:,:), intent(inout)           :: hcx, hcy
     integer                                               :: ii, jj
-    hc=0.0d0
+    hcx = 0.0d0
+    hcy = 0.0d0
     do ii=1, nparticles, 1
       do jj=ii+1, nparticles, 1
         hcx(ii,jj) = 0.5d0*(ppx(ii)+ppx(jj))*cfx(ii,jj)

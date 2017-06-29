@@ -162,23 +162,23 @@ program twoDChain
       ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy !+ stermsCy*dOmyc
       if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
-        call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
-        call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hcx, hcy)
-        call current_Flux(hcx, hcy, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
+        !call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
+        !call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hcx, hcy)
+        !call current_Flux(hcx, hcy, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
         !xx2s(:,ll)  = xxnew*xxnew
         !yy2s(:,ll)  = yynew*yynew
         ppx2s(:,ll) = ppxnew*ppxnew
         ppy2s(:,ll) = ppynew*ppynew
         xpxs(:,ll)  = xxnew*ppxnew
         ypys(:,ll)  = yynew*ppynew
-        JJix_s(ll) = JJix
-        JJiy_s(ll) = JJiy
+        !JJix_s(ll) = JJix
+        !JJiy_s(ll) = JJiy
       end if
       if( ii .gt. fin) then
           xxs(:,mm)   = xxnew
           yys(:,mm)   = yynew
           call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
-          call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hc)
+          call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hcx, hcy)
           call current_Flux(hcx, hcy, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
           JJix_av = JJix_av + JJix/(nsteps-fin-1)
           JJiy_av = JJiy_av + JJiy/(nsteps-fin-1)
@@ -197,11 +197,11 @@ program twoDChain
     ppy2s(:,nssteps) = ppynew*ppynew
     xpxs(:,nssteps)  = xxnew*ppxnew
     ypys(:,nssteps)  = yynew*ppynew
-    call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
-    call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hc)
-    call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
-    JJix_s(nssteps) = JJix
-    JJiy_s(nssteps) = JJiy
+    !call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
+    !call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hc)
+    !call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
+    !JJix_s(nssteps) = JJix
+    !JJiy_s(nssteps) = JJiy
 
     if(rank .eq. 0 .and. kk .eq. 1) then
       open(unit=11, file="posX.dat")
@@ -221,8 +221,8 @@ program twoDChain
     xpx_av  = (xpx_av + xpxs)
     ypy_av  = (ypy_av + ypys)
     xx_av   = xx_av + xxs
-    JJix_sav = JJix_sav + JJix_s
-    JJiy_sav = JJiy_sav + JJiy_s
+    !JJix_sav = JJix_sav + JJix_s
+    !JJiy_sav = JJiy_sav + JJiy_s
     if( ( mod(kk,5) .eq. 0) .and. (kk .lt. local_traj) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
      errJJix = 0.0d0
@@ -238,8 +238,8 @@ program twoDChain
      call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      !call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      !call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(JJix_sav, JJix_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(JJiy_sav, JJiy_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     !call mpi_reduce(JJix_sav, JJix_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     !call mpi_reduce(JJiy_sav, JJiy_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(xx_av, xx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
      call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -272,12 +272,12 @@ program twoDChain
         write(13,*) xx_av/traj
       end do
       close(unit=13)
-      open(unit=14, file="JJxt.dat")
-      write(14,*) JJix_savt/traj
-      close(unit=14)
-      open(unit=14, file="JJyt.dat")
-      write(14,*) JJiy_savt/traj
-      close(unit=14)
+      !open(unit=14, file="JJxt.dat")
+      !write(14,*) JJix_savt/traj
+      !close(unit=14)
+      !open(unit=14, file="JJyt.dat")
+      !write(14,*) JJiy_savt/traj
+      !close(unit=14)
      end if
      !xx2_avt  = 0.0d0
      !yy2_avt  = 0.0d0
@@ -302,8 +302,8 @@ program twoDChain
   call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(JJix_sav, JJix_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(JJiy_sav, JJiy_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(JJix_sav, JJix_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  !call mpi_reduce(JJiy_sav, JJiy_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   !call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   !call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
   call mpi_reduce(xx_av, xx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
@@ -342,12 +342,12 @@ program twoDChain
     end do
     close(unit=11)
     close(unit=12)
-    open(unit=14, file="JJxt.dat")
-    write(14,*) JJix_savt/traj
-    close(unit=14)
-    open(unit=14, file="JJyt.dat")
-    write(14,*) JJiy_savt/traj
-    close(unit=14)
+    !open(unit=14, file="JJxt.dat")
+    !write(14,*) JJix_savt/traj
+    !close(unit=14)
+    !open(unit=14, file="JJyt.dat")
+    !write(14,*) JJiy_savt/traj
+    !close(unit=14)
     print*, "Writing FINAL results to files after ", traj , "trajectories."
     seconds1 = mpi_wtime() - seconds1
     print*, "integration + message + write time:", seconds1
