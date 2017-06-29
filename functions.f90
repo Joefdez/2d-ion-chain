@@ -136,26 +136,28 @@ module support_functions_twod
 
   end subroutine local_energy
 
-  subroutine heat_current(nparticles, cfx, cfy, ppx, ppy, hc)
+  subroutine heat_current(nparticles, cfx, cfy, ppx, ppy, hcx, hcy)
     implicit none
     integer, intent(in)                                   :: nparticles
     real(kind=8), dimension(:,:), intent(in)              :: cfx, cfy
     real(kind=8), dimension(:), intent(in)                :: ppx, ppy
-    real(kind=8), dimension(:,:), intent(inout)              :: hc
+    real(kind=8), dimension(:,:), intent(inout)           :: hcx, hcy
     integer                                               :: ii, jj
     hc=0.0d0
     do ii=1, nparticles, 1
       do jj=ii+1, nparticles, 1
-        hc(ii,jj) = 0.5d0*(ppx(ii)+ppx(jj))*cfx(ii,jj) + 0.5d0*(ppy(ii)+ppy(jj))*cfy(ii,jj)
-        hc(jj,ii) = -1.0d0*hc(ii,jj)
+        hcx(ii,jj) = 0.5d0*(ppx(ii)+ppx(jj))*cfx(ii,jj)
+        hcx(jj,ii) = -0.5d0*(ppx(ii)+ppx(jj))*cfx(ii,jj)
+        hcy(ii,jj) = 0.5d0*(ppy(ii)+ppy(jj))*cfy(ii,jj)
+        hcy(jj,ii) = -0.5d0*(ppy(ii)+ppy(jj))*cfy(ii,jj)
       end do
     end do
 
   end subroutine heat_current
 
-  subroutine current_Flux(hc, energy, xx, yy, ppx, ppy, nparticles, JJintx, JJinty)
+  subroutine current_Flux(hcx, hcy, energy, xx, yy, ppx, ppy, nparticles, JJintx, JJinty)
     implicit none
-    real(kind=8), dimension(:,:), intent(in)              :: hc !cfx, cfy
+    real(kind=8), dimension(:,:), intent(in)              :: hcx, hcy !cfx, cfy
     real(kind=8), dimension(:), intent(in)                :: xx, yy, ppx, ppy, energy
     integer, intent(in)                                   :: nparticles
     real(kind=8), intent(inout)                           :: JJintx, JJinty
@@ -173,8 +175,8 @@ module support_functions_twod
       do ll=1, nparticles, 1
         if(nn .eq. ll) cycle
         !JJ0 = 0.5d0*(ppx(nn+1)+ppx(ll))*cfx(nn+1,ll) + 0.5d0*(ppy(nn+1)+ppy(ll))*cfy(nn+1,ll)
-        JJintx = JJintx + 0.5d0*(xx(nn)-xx(ll))*hc(nn,ll)
-        JJinty = JJinty + 0.5d0*(yy(nn)-yy(ll))*hc(nn,ll)
+        JJintx = JJintx + 0.5d0*(xx(nn)-xx(ll))*hcx(nn,ll)
+        JJinty = JJinty + 0.5d0*(yy(nn)-yy(ll))*hcy(nn,ll)
       end do
     end do
 
