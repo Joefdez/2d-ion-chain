@@ -163,8 +163,8 @@ program twoDChain
       if( mod(ii,save_freq) .eq. 0) then
         ll = ll + 1
         call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
-        call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hcx, hcy)
-        call current_Flux(hcx, hcy, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
+        call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hc)
+        call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
         !xx2s(:,ll)  = xxnew*xxnew
         !yy2s(:,ll)  = yynew*yynew
         ppx2s(:,ll) = ppxnew*ppxnew
@@ -179,7 +179,7 @@ program twoDChain
           yys(:,mm)   = yynew
           call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
           call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hc)
-          call current_Flux(hcx, hcy, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
+          call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
           JJix_av = JJix_av + JJix/(nsteps-fin-1)
           JJiy_av = JJiy_av + JJiy/(nsteps-fin-1)
           JJix_av_v(kk) = JJix_av_v(kk) + JJix/(nsteps-fin-1)
