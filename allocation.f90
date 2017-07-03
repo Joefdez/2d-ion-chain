@@ -186,15 +186,15 @@ JJiy_av = 0.0d0
 JJix_avt = 0.0d0
 JJiy_avt = 0.0d0
 
-!allocate(JJix_s(1:nssteps))
-!JJix_s = 0.0d0
-!allocate(JJix_sav(1:nssteps))
-!JJix_sav = 0.0d0
-!allocate(JJix_savt(1:nssteps))
-!JJix_savt = 0.0d0
-!allocate(JJiy_s(1:nssteps))
-!JJiy_s = 0.0d0
-!allocate(JJiy_sav(1:nssteps))
-!JJiy_sav = 0.0d0
-!allocate(JJiy_savt(1:nssteps))
-!JJiy_savt = 0.0d0
+allocate(JJix_s(1:nssteps))
+JJix_s = 0.0d0
+allocate(JJix_sav(1:nssteps))
+JJix_sav = 0.0d0
+allocate(JJix_savt(1:nssteps))
+JJix_savt = 0.0d0
+allocate(JJiy_s(1:nssteps))
+JJiy_s = 0.0d0
+allocate(JJiy_sav(1:nssteps))
+JJiy_sav = 0.0d0
+allocate(JJiy_savt(1:nssteps))
+JJiy_savt = 0.0d0
