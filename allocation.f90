@@ -146,10 +146,8 @@ ypy_avt = 0.0d0
 
 allocate(energy(1:nparticles))
 energy = 0.0d0
-allocate(hcx(1:nparticles,1:nparticles))
-hcx= 0.0d0
-allocate(hcy(1:nparticles,1:nparticles))
-hcx= 0.0d0
+allocate(hc(1:nparticles,1:nparticles))
+energy = 0.0d0
 !allocate(hcx(1:(nssteps)))
 !hcx = 0.0d0
 !allocate(hcy(1:(nssteps)))
