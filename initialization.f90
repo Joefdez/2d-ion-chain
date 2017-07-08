@@ -1,3 +1,4 @@
+
 ! module containing variable initializations
 
 module initialization
@@ -6,7 +7,7 @@ module initialization
 
 contains
   ! based on http://jblevins.org/log/control-file
-  subroutine initialize_system(n_particles, mass1, charge1, tt, dt, traj, save_freq, long_freq, alpha, ic_radius)
+  subroutine initialize_system(n_particles, mass1, charge1, tt, dt, traj, save_freq, long_freq, alpha, ic_radius, initT)
 
     implicit none
 
@@ -16,10 +17,10 @@ contains
     integer, parameter :: fh=15
     integer :: ios=0, line=0
 
-    integer, intent(inout) :: n_particles   ! number of partilcles
+    integer, intent(inout) :: n_particles   ! dimensionality of the problem, number of partilcles
 
     real(kind=8), intent(inout)  :: mass1, charge1, ic_radius
-    real(kind=8), intent(inout)  :: alpha, long_freq
+    real(kind=8), intent(inout)  :: alpha, long_freq, initT
     real(kind=8), intent(inout)       :: dt, tt
     integer, intent(inout)            :: traj
     integer, intent(inout)            :: save_freq
@@ -57,6 +58,8 @@ contains
               read(buffer,*,iostat=ios) long_freq
           case('save_freq')
               read(buffer,*,iostat=ios) save_freq
+          case('initT')
+              read(buffer,*,iostat=ios) initT
           case default
               print*, "Skipping invalid value."
         end select
@@ -67,7 +70,7 @@ contains
 
   end subroutine initialize_system
 
-  subroutine initialize_laser_chain(del1, del2, Gam, omega, I1, I2)
+  subroutine initialize_laser_chain(del1, del2, delC, Gam, omega, I1, I2, IC)
     ! initialize laser and ion interaction parameters
 
     implicit none
@@ -77,9 +80,9 @@ contains
     integer :: pos
     integer, parameter :: fh=15
     integer :: ios=0, line=0
-    real(kind=8), intent(inout) :: del1, del2
+    real(kind=8), intent(inout) :: del1, del2, delC
     real(kind=8), intent(inout)  :: Gam, omega
-    real(kind=8), intent(inout) :: I1, I2
+    real(kind=8), intent(inout) :: I1, I2, IC
 
     open(unit=fh, file='chain_laser.dat',action='read')
 
@@ -97,6 +100,8 @@ contains
               read(buffer,*,iostat=ios) del1
           case('detuning_right')
               read(buffer,*,iostat=ios) del2
+          case('detuning_cool')
+              read(buffer,*,iostat=ios) delC
           case('linewidth')
               read(buffer,*,iostat=ios) Gam
           case('target_frequency')
@@ -105,6 +110,8 @@ contains
               read(buffer,*,iostat=ios) I1
           case('intensity_right')
                 read(buffer,*,iostat=ios) I2
+          case('intensity_cool')
+                read(buffer,*,iostat=ios) IC
           case default
                 print*, "Skipping invalid value."
         end select
@@ -113,6 +120,17 @@ contains
 
     print*,"read"
   end subroutine initialize_laser_chain
+
+  subroutine doppler_values(kk, gam, del, II, eta, DD)
+    implicit none
+    real(kind=8), intent(in)    :: kk, gam, del, II
+    real(kind=8), intent(inout) :: eta, DD
+
+    eta = -4.0d0*hbar*kk*kk*II*(2.0d0*del/Gam)/( (1 + 4.0d0*del*del/(Gam*Gam)) * (1 + 4.0d0*del*del/(Gam*Gam)) )
+    DD   =  hbar*hbar*kk*kk*II*(Gam)/(1.0d0 + 4.0d0*del*del/(Gam*Gam))
+
+  end subroutine doppler_values
+
 
   subroutine dimensionless_doppler_values(eta, D, mass, long_freq, char_length, aeta, aD)
     implicit none
