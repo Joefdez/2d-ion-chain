@@ -22,6 +22,8 @@ program twoDChain
     call initialize_system(nparticles, mass, charge, tt, dt, traj, save_freq, long_freq, alpha, ic_radius, initT)
   end if
 
+
+  ! Share system data between differente processes
   call mpi_bcast(nparticles, 1, mpi_integer, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(traj, 1, mpi_integer, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(nsteps, 1, mpi_integer, 0, MPI_COMM_WORLD, ierr)
@@ -35,7 +37,7 @@ program twoDChain
   call mpi_bcast(long_freq, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(initT, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
 
-  call mpi_barrier(mpi_comm_world, ierr)
+  call mpi_barrier(mpi_comm_world, ierr)              ! Wait for everyone else to get here
 
   mass   = mass*uu
   charge = charge*ee
@@ -51,6 +53,7 @@ program twoDChain
     call initialize_laser_chain(del1, del2, delC, Gam, omega0, I1, I2, IC)
   end if
 
+  ! Share the laser parameters between the difference processes
   call mpi_bcast(del1, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(del2, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
   call mpi_bcast(delC, 1, mpi_double_precision, 0, MPI_COMM_WORLD, ierr)
@@ -82,10 +85,15 @@ program twoDChain
   initT = initT * (kb/(char_length*char_length*mass*long_freq*long_freq))
   initSpeed = sqrt(2*initSpeed)
 
+  call doppler_values(k1, Gam, del1, I1, eta1, D1)
+  call doppler_values(k2, Gam, del2, I2, eta2, D1)
+  !call doppler_vales(kC, Gam, delC, IC etaC, DC)
+
+
   ! Calculate dimensionless Doppler cooling parameters
   call dimensionless_doppler_values(eta1, D1, mass, long_freq, char_length, aeta1, aD1)
   call dimensionless_doppler_values(eta2, D2, mass, long_freq, char_length, aeta2, aD2)
-  call dimensionless_doppler_values(etaC, DC, mass, long_freq, char_length, aetaC, aDc)
+  !call dimensionless_doppler_values(etaC, DC, mass, long_freq, char_length, aetaC, aDc)
 
   local_traj = traj/procs
   rem = mod(traj, procs)
@@ -95,12 +103,13 @@ program twoDChain
 
   include 'allocation.f90'
 
-  stermsCx = sqrt(2.0d0*aDc)
-  stermsCy = sqrt(2.0d0*aDc)
   stermsBx(1:nbath) = sqrt(2.0d0*aD1)
   stermsBy(1:nbath) = sqrt(2.0d0*aD1)
   stermsBx((nparticles-nbath+1):nparticles) = sqrt(2.0d0*aD2)
   stermsBy((nparticles-nbath+1):nparticles) = sqrt(2.0d0*aD2)
+  !stermsCx = sqrt(2.0d0*aDc)
+  !stermsCy = sqrt(2.0d0*aDc)
+
   if(rank .eq. 0) then
      seconds = mpi_wtime()
      seconds1 = mpi_wtime()
@@ -134,47 +143,21 @@ program twoDChain
 !   JJix_av  = 0.0d0
 !   JJiy_av = 0.0d0
     do ii=1, nsteps, 1
-      call coulombM(nparticles, xxold, yyold, fx1, fy1, invD1)
-      fx = 0.0d0
-      fy = 0.0d0
-      do jj=1, nparticles, 1
-        fx(jj) = sum(fx1(jj,:), 1)
-        fy(jj) = sum(fy1(jj,:), 1)
-      end do
-      call vecA(xxold, yyold, ppxold, ppyold, fx, fy, alpha, aeta1, aeta2, aetaC, nbath, nparticles, Axx, Ayy, Apx, Apy)
-      call vecB_edges(dst, nparticles, dOmx, dOmy)
-      !call vecB_cool(dst, nparticles, dOmxc, dOmyc)
-      xxi = xxold + Axx*dt
-      yyi = yyold + Ayy*dt
-      ppxi = ppxold + Apx*dt  + stermsBx*dOmx !+ stermsCx*dOmxc
-      ppyi = ppyold + Apy*dt  + stermsBy*dOmy !+ stermsCy*dOmyc
-      fx = 0.0d0
-      fy = 0.0d0
-      call coulombM(nparticles, xxi, yyi, fx2, fy2, invD2)
-      do jj=1, nparticles, 1
-        fx(jj) = sum(fx2(jj,:), 1)
-        fy(jj) = sum(fy2(jj,:), 1)
-      end do
-      call vecA(xxi, yyi, ppxi, ppyi, fx, fy, alpha, aeta1, aeta2, aetaC, nbath, nparticles, Axxi, Ayyi, Apxi, Apyi)
-      xxnew   = xxold + 0.5d0*(Axx + Axxi)*dt
-      yynew   = yyold + 0.5d0*(Ayy + Ayyi)*dt
-      ppxnew  = ppxold + 0.5d0*(Apx + Apxi)*dt + stermsBx*dOmx !+ stermsCx*dOmxc
-      ppynew  = ppyold + 0.5d0*(Apy + Apyi)*dt + stermsBy*dOmy !+ stermsCy*dOmyc
-      if( mod(ii,save_freq) .eq. 0) then
+
+      include 'solvers/platen_step.f90'     !! This file contains the lines which calculate the time step.
+
+
+      if( mod(ii,save_freq) .eq. 0) then      ! Save chosen time steps to get time evolution of variables
         ll = ll + 1
-        call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
-        call heat_current(nparticles, fx1, fy1, ppxold, ppyold, hc)
-        call current_Flux(hc, energy, xxold, yyold, ppxold, ppyold, nparticles, JJix, JJiy)
         !xx2s(:,ll)  = xxnew*xxnew
         !yy2s(:,ll)  = yynew*yynew
         ppx2s(:,ll) = ppxnew*ppxnew
         ppy2s(:,ll) = ppynew*ppynew
         xpxs(:,ll)  = xxnew*ppxnew
         ypys(:,ll)  = yynew*ppynew
-        JJix_s(ll) = JJix
-        JJiy_s(ll) = JJiy
       end if
-      if( ii .gt. fin) then
+
+      if( ii .gt. fin) then                     ! Save last time steps for steady-state calculation
           xxs(:,mm)   = xxnew
           yys(:,mm)   = yynew
           call local_energy(nparticles, alpha, xxold, yyold, invD1, ppxold, ppyold, energy)
@@ -191,6 +174,8 @@ program twoDChain
       ppxold  = ppxnew
       ppyold  = ppynew
     end do
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!! Calculate correlation matrix !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !xx2s(:,nssteps)  = xxnew*xxnew
     !yy2s(:,nssteps)  = yynew*yynew
     ppx2s(:,nssteps) = ppxnew*ppxnew
@@ -203,6 +188,7 @@ program twoDChain
     JJix_s(nssteps) = JJix
     JJiy_s(nssteps) = JJiy
 
+    ! Write results to file
     if(rank .eq. 0 .and. kk .eq. 1) then
       open(unit=11, file="posX.dat")
       open(unit=12, file="posY.dat")
@@ -225,29 +211,10 @@ program twoDChain
     JJiy_sav = JJiy_sav + JJiy_s
     if( ( mod(kk,5) .eq. 0) .and. (kk .lt. local_traj) ) then
      print*, "Writing PARTIAL results to files after ", kk, "trajectories."
-     errJJix = 0.0d0
-     errJJiy = 0.0d0
-     do nn=1, kk, 1
-       errJJix = errJJix + (JJix_av_v(nn)-sum(JJix_av_v,1)/(kk))*(JJix_av_v(nn)-sum(JJix_av_v,1)/(kk))
-       errJJiy = errJJiy + (JJiy_av_v(nn)-sum(JJiy_av_v,1)/(kk))*(JJiy_av_v(nn)-sum(JJiy_av_v,1)/(kk))
-     end do
-     errJJix = errJJix/kk
-     errJJiy = errJJiy/kk
 
-     call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     !call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     !call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(JJix_sav, JJix_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(JJiy_sav, JJiy_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(xx_av, xx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(ypy_av, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(errJJix, errJJix_t, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-     call mpi_reduce(errJJiy, errJJiy_t, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+     include 'mpi_comms.f90'
      call mpi_reduce(kk, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
+
      print*, "Finished writing up to", kk
      if(rank .eq. 0) then
       !xx2_avt  = xx2_avt*char_length*char_length/traj
@@ -256,12 +223,11 @@ program twoDChain
       ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in K
       xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
       ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
-      errJJix_t = sqrt( errJJix_t/procs)
-      errJJiy_t = sqrt( errJJiy_t/procs)
+
       open(unit=11, file="heatflux.dat")
       open(unit=12, file="temperatures.dat")
-      write(11,*) JJix_avt/traj, "+/-", errJJix_t
-      write(11,*) JJiy_avt/traj, "+/-", errJJiy_t
+      write(11,*) JJix_avt/traj
+      write(11,*) JJiy_avt/traj
       do jj=1, nparticles
        write(12,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
       end do
@@ -288,31 +254,10 @@ program twoDChain
     end if
   end do
   print*,"Proc ", rank, " finished integrating"
-  errJJix = 0.0d0
-  errJJiy = 0.0d0
-  do nn=1, local_traj, 1
-    errJJix = errJJix + (JJix_av_v(nn)-sum(JJix_av_v,1)/(local_traj))*(JJix_av_v(nn)-sum(JJix_av_v,1)/(local_traj))
-    errJJiy = errJJiy + (JJiy_av_v(nn)-sum(JJiy_av_v,1)/(local_traj))*(JJiy_av_v(nn)-sum(JJiy_av_v,1)/(local_traj))
-  end do
-  errJJix = errJJix/local_traj
-  errJJiy = errJJiy/local_traj
+
 
   call mpi_barrier(mpi_comm_world, ierr)
-  call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(JJix_av, JJix_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(JJiy_av, JJiy_avt, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(JJix_sav, JJix_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(JJiy_sav, JJiy_savt, nssteps, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  !call mpi_reduce(xx2_av, xx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  !call mpi_reduce(yy2_av, yy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xx_av, xx_avt, (nsteps-fin), mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppx2_av, ppx2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ppy2_av, ppy2_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(xpx_av, xpx_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(ypy_av, ypy_avt, n_elems, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(errJJix, errJJix_t, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
-  call mpi_reduce(errJJiy, errJJiy_t, 1, mpi_double_precision, mpi_sum, 0, mpi_comm_world, ierr)
+  include 'mpi_comms.f90'
   call mpi_reduce(local_traj, traj, 1, mpi_integer, mpi_sum, 0, mpi_comm_world, ierr)
 
 
@@ -323,20 +268,19 @@ program twoDChain
     print*, "total integration + partial writing time:", seconds, seconds/3600.0d0
     print*,traj
 
-    errJJix_t = sqrt( errJJix_t/procs)
-    errJJiy_t = sqrt( errJJiy_t/procs)
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!! Calculate correlation matrix !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !xx2_avt  = xx2_avt*char_length*char_length/traj
     !yy2_avt  = yy2_avt*char_length*char_length/traj
     ppx2_avt = ppx2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in K
     ppy2_avt = ppy2_avt*char_length*char_length*mass*long_freq*long_freq/(2.0d0*kb)/traj ! Convert to temperature in K
     xpx_avt  = xpx_avt*char_length*char_length*mass*long_freq/traj
     ypy_avt  = ypy_avt*char_length*char_length*mass*long_freq/traj
-    errJJix_t = sqrt( errJJix_t/traj - (JJix_avt*JJix_avt)/(traj*traj) )
-    errJJiy_t = sqrt( errJJiy_t/traj - (JJiy_avt*JJiy_avt)/(traj*traj) )
+
+    ! Write results to file
     open(unit=11, file="heatflux.dat")
     open(unit=12, file="temperatures.dat")
-    write(11,*) JJix_avt/traj, "+/-", errJJix_t
-    write(11,*) JJiy_avt/traj, "+/-", errJJiy_t
+    write(11,*) JJix_avt/traj
+    write(11,*) JJiy_avt/traj
     do jj=1, nparticles
      write(12,*) ppx2_avt(jj,:) + ppy2_avt(jj,:)
     end do

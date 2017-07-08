@@ -121,6 +121,17 @@ contains
     print*,"read"
   end subroutine initialize_laser_chain
 
+  subroutine doppler_values(kk, gam, del, II, eta, DD)
+    implicit none
+    real(kind=8), intent(in)    :: kk, gam, del, II
+    real(kind=8), intent(inout) :: eta, DD
+
+    eta = -4.0d0*hbar*kk*kk*II*(2.0d0*del/Gam)/( (1 + 4.0d0*del*del/(Gam*Gam)) * (1 + 4.0d0*del*del/(Gam*Gam)) )
+    DD   =  hbar*hbar*kk*kk*II*(Gam)/(1.0d0 + 4.0d0*del*del/(Gam*Gam))
+
+  end subroutine doppler_values
+
+
   subroutine dimensionless_doppler_values(eta, D, mass, long_freq, char_length, aeta, aD)
     implicit none
     real(kind=8), intent(in)              :: eta, D, mass, long_freq, char_length
